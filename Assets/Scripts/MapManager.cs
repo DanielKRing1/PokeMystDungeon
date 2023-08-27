@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,7 +12,7 @@ public class MapManager : MonoBehaviour
         worldWidth,
         worldHeight;
 
-    void Start()
+    public void Start()
     {
         this.CreateMap();
     }
@@ -27,6 +26,7 @@ public class MapManager : MonoBehaviour
         float wallHeight = (float)this.worldHeight / (float)this.gridHeight;
         float wallDepth = 1;
         wall.transform.localScale = new Vector3(wallWidth, wallDepth, wallHeight);
+        GameObject plane = GameObject.Find("Plane");
         Action<int, int, Map.CellType> drawCell = (int x, int y, Map.CellType ct) =>
         {
             // Cavern
@@ -36,7 +36,12 @@ public class MapManager : MonoBehaviour
             else if (ct == Map.CellType.Alive)
             {
                 // Start at top-left
-                Instantiate(wall, this.CellCoordsToWorldCoords(x, y), this.transform.rotation);
+                GameObject go = Instantiate(
+                    wall,
+                    this.CellCoordsToWorldCoords(x, y),
+                    this.transform.rotation
+                );
+                go.transform.SetParent(plane.transform);
             }
             // Item
             else { }
@@ -85,7 +90,7 @@ public class Map
 
     public Map()
     {
-        this.wallChance = 45;
+        this.wallChance = 50;
 
         this.birthRule = 5;
         this.deathRule = 4;
@@ -105,11 +110,11 @@ public class Map
 
         this.InitNoise();
         // this.LogWallCount();
-        this.SculptMap(10);
+        this.SculptMap(20);
         // this.LogWallCount();
         this.EncloseMap();
         // this.LogWallCount();
-        // this.ConnectCaverns();
+        this.ConnectCaverns();
         // this.LogWallCount();
 
         this.RecordWallAndGroundCells();
@@ -224,7 +229,7 @@ public class Map
                 {
                     neighborCount++;
                 }
-                else if (grid[(x + (int)dir.x), (y + (int)dir.y)] == CellType.Alive)
+                else if (grid[x + (int)dir.x, y + (int)dir.y] == CellType.Alive)
                 {
                     neighborCount++;
                 }
@@ -262,6 +267,8 @@ public class Map
                     caverns.Add(cavern);
             }
         }
+
+        Debug.Log(caverns.Count);
     }
 
     private void ExploreCavern(int x, int y, List<int> cavern, HashSet<int> seen)
@@ -274,7 +281,7 @@ public class Map
             || y >= this.grid.GetLength(0)
             || x < 0
             || x >= this.grid.GetLength(1)
-            || this.grid[y, x] == CellType.Dead
+            || this.grid[y, x] == CellType.Alive
             || seen.Contains(id)
         )
             return;
@@ -283,9 +290,11 @@ public class Map
         seen.Add(id);
         cavern.Add(id);
 
-        // Go down
+        // Go left/right
+        ExploreCavern(x - 1, y, cavern, seen);
         ExploreCavern(x + 1, y, cavern, seen);
-        // Go right
+        // Go up/down
+        ExploreCavern(x, y - 1, cavern, seen);
         ExploreCavern(x, y + 1, cavern, seen);
     }
 
@@ -325,7 +334,7 @@ public class Map
                     x--;
             }
 
-            // 2.2. Straight line x component
+            // 2.2. Straight line y component
             while (y != stopY)
             {
                 this.grid[y, x] = CellType.Dead;
