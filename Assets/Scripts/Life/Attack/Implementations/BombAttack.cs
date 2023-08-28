@@ -7,13 +7,12 @@ public class BombAttack : AttackBehavior
     protected override void CB_DecideAfterExecute(DamageElement dmgEl)
     {
         // Do nothing
-        HandleDestroy(dmgEl);
+        HandleDestroyDmgEl(dmgEl);
     }
 
     protected override string DecideDmgElResourcePath()
     {
         return "Prefabs/DmgEl";
-
     }
 
     protected override float DecideBaseCooldown()
@@ -32,7 +31,8 @@ public class BombAttack : AttackBehavior
             out list,
             this.transform.position,
             this.DecideHitboxRadius(),
-            this.GetComponent<LeadershipManager>().GetRootLeader());
+            this.GetComponent<LeadershipManager>().GetRootLeader()
+        );
     }
 
     protected override bool CB_DecideHandleIfReachTarget(DamageElement dmgEl, TargetInfo target)

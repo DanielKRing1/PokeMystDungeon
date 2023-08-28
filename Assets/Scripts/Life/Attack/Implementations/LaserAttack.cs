@@ -27,7 +27,7 @@ public class LaserAttack : AttackBehavior
         IEnumerator ScheduleDestroy(DamageElement dmgEl)
         {
             yield return new WaitForSeconds(2.0f); // Wait for 2 seconds
-            HandleDestroy(dmgEl);
+            HandleDestroyDmgEl(dmgEl);
         }
         StartCoroutine(ScheduleDestroy(dmgEl));
         this.scheduledForDestroy = true;
@@ -36,7 +36,6 @@ public class LaserAttack : AttackBehavior
     protected override string DecideDmgElResourcePath()
     {
         return "Prefabs/DmgEl";
-
     }
 
     protected override float DecideBaseCooldown()
@@ -59,7 +58,8 @@ public class LaserAttack : AttackBehavior
             direction,
             // TODO Aug 26, 2023: Define this somewhere
             10f,
-            this.GetComponent<LeadershipManager>().GetRootLeader());
+            this.GetComponent<LeadershipManager>().GetRootLeader()
+        );
     }
 
     protected override bool CB_DecideHandleIfReachTarget(DamageElement dmgEl, TargetInfo target)

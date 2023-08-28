@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-public abstract class AttackBehavior : AttackBehaviorDecisions
+public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitive
 {
     public static readonly List<Type> ATTACK_BEHAVIOR_TYPES = new List<Type>()
     {
@@ -12,12 +11,13 @@ public abstract class AttackBehavior : AttackBehaviorDecisions
         typeof(OrbitAttack),
         typeof(SpikeAttack)
     };
-    
+
     private Stopwatch cooldownSW;
     private Dictionary<DamageElement, DamageElement> trackedDamageElements =
         new Dictionary<DamageElement, DamageElement>();
 
-    public virtual void Start() {
+    public virtual void Start()
+    {
         this.cooldownSW = new Stopwatch();
     }
 
@@ -189,7 +189,7 @@ public abstract class AttackBehavior : AttackBehaviorDecisions
     {
         bool isExhausted = CheckIfExhausted(hitCount, dmgEl);
         if (isExhausted)
-            HandleDestroy(dmgEl);
+            HandleDestroyDmgEl(dmgEl);
 
         return isExhausted;
     }
@@ -201,8 +201,23 @@ public abstract class AttackBehavior : AttackBehaviorDecisions
 
     // DESTROY ----
 
-    protected void HandleDestroy(DamageElement dmgEl)
+    /**
+    Call before destroying this GameObject
+    */
+    public void OnDestroy()
     {
+        foreach (KeyValuePair<DamageElement, DamageElement> kvp in this.trackedDamageElements)
+        {
+            this.HandleDestroyDmgEl(kvp.Value);
+        }
+    }
+
+    /**
+    Call to destroy a DamageElement
+    */
+    protected void HandleDestroyDmgEl(DamageElement dmgEl)
+    {
+        this.trackedDamageElements.Remove(dmgEl);
         Destroy(dmgEl);
     }
 

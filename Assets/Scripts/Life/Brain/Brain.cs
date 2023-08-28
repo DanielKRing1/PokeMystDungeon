@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Brain : MonoBehaviour
@@ -30,19 +28,22 @@ public abstract class Brain : MonoBehaviour
         this.AddPartsOfLife();
 
         // Additional
+        this.AddDestroyManager();
         this.AddIndicatorManager();
     }
 
     // ATTRIBUTE MANAGER COMPONENTS
 
-    private void AddAttributeManagers() {
+    private void AddAttributeManagers()
+    {
         this.gameObject.AddComponent<StatsManager>();
         this.gameObject.AddComponent<LeadershipManager>();
         this.gameObject.AddComponent<LevelManager>();
         this.gameObject.AddComponent<StatsManager>();
     }
 
-    private void InitAttributeManagers() {
+    private void InitAttributeManagers()
+    {
         // Random level
         int level = this.GetInitLevel();
         // Random Stats
@@ -66,7 +67,8 @@ public abstract class Brain : MonoBehaviour
 
     // PART OF LIFE COMPONENTS
 
-    private void AddPartsOfLife() {
+    private void AddPartsOfLife()
+    {
         this.gameObject.AddComponent(this.GetAttackBehaviorType());
         this.gameObject.AddComponent(this.GetMoveBehaviorType());
         this.gameObject.AddComponent<HealthFunction>();
@@ -79,11 +81,17 @@ public abstract class Brain : MonoBehaviour
 
     // ADDITIONAL COMPONENTS
 
+    private void AddDestroyManager()
+    {
+        this.gameObject.AddComponent<DestroyManager>();
+    }
+
     /**
     This must be called after adding and initing AttributeManagers (specifically LeadershipManager),
     so that the VisualsManager has access to the RootLeader's color
     */
-    private void AddIndicatorManager() {
+    private void AddIndicatorManager()
+    {
         this.gameObject.AddComponent<VisualsManager>();
     }
 
