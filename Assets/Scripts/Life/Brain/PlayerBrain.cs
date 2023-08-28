@@ -1,15 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System;
 
 public class PlayerBrain : Brain {
-    protected override void Start() {
-        Debug.Log("Start-----------------");
-        int level = 1;
-        Stats baseStats = Stats.GenBaseStats();
-        int leadership = LeadershipManager.MAX_LEADERSHIP;
-        PubSub<LeadershipManager> leader = null;
 
-        this.Init(level, baseStats, leadership, leader);
+    protected override Type GetAttackBehaviorType()
+    {
+        return typeof(SpikeAttack);
+    }
+
+    protected override PubSub<LeadershipManager> GetInitLeader()
+    {
+        return null;
+    }
+
+    protected override int GetInitLeadership()
+    {
+        return LeadershipManager.MAX_LEADERSHIP;
+    }
+
+    protected override int GetInitLevel()
+    {
+        return 1;
+    }
+
+    protected override Stats GetInitStats()
+    {
+        return Stats.GenBaseStats();
+    }
+
+    protected override Type GetMoveBehaviorType()
+    {
+        return typeof(PlayerMove);
     }
 }

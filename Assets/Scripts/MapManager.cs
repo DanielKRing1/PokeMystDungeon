@@ -90,7 +90,7 @@ public class Map
 
     public Map()
     {
-        this.wallChance = 50;
+        this.wallChance = 45;
 
         this.birthRule = 5;
         this.deathRule = 4;

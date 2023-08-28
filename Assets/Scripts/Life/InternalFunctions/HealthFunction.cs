@@ -14,7 +14,7 @@ public class HealthFunction : InternalFunction
 
     private RecoveryHelper rh;
     
-    private void Start() {
+    public void Start() {
         this.rh = new RecoveryHelper();
     }
 
@@ -121,7 +121,7 @@ public class HealthFunction : InternalFunction
 
         // Broadcast all the way down
         Func<PubSub<LeadershipManager>, bool> updateLeadershipIndicator = (PubSub<LeadershipManager> sub) => {
-            sub.Me.ApplyLeaderIndicatorColor();
+            sub.Me.gameObject.GetComponent<VisualsManager>().ApplyRootLeaderColor();
 
             return true;
         };

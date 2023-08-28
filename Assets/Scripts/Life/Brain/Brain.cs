@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Brain : MonoBehaviour
+public abstract class Brain : MonoBehaviour
 {
     private Stopwatch ifSW;
     private Stopwatch sSW;
@@ -12,36 +13,81 @@ public class Brain : MonoBehaviour
 
     protected virtual void Start()
     {
-        // Random level
-        int level = (int)Random.Range(1, 10);
-        // Random Stats
-        Stats baseStats = Stats.GenBaseStats();
-        // Random Leadership lvl
-        int leadership = (int)
-            Random.Range(LeadershipManager.MIN_LEADERSHIP, LeadershipManager.MAX_LEADERSHIP);
-        PubSub<LeadershipManager> leader = null;
-
-        this.Init(level, baseStats, leadership, leader);
-    }
-
-    protected void Init(
-        int level,
-        Stats stats,
-        int leadership = -1,
-        PubSub<LeadershipManager> leader = null
-    )
-    {
         this.ifSW = new Stopwatch();
         this.sSW = new Stopwatch();
         this.bSW = new Stopwatch();
 
-        AttrManager[] mms = this.GetComponents<AttrManager>();
+        this.Init();
+    }
 
+    protected void Init()
+    {
+        // AttributeManager's
+        this.AddAttributeManagers();
+        this.InitAttributeManagers();
+
+        // PartOfLife's
+        this.AddPartsOfLife();
+
+        // Additional
+        this.AddIndicatorManager();
+    }
+
+    // ATTRIBUTE MANAGER COMPONENTS
+
+    private void AddAttributeManagers() {
+        this.gameObject.AddComponent<StatsManager>();
+        this.gameObject.AddComponent<LeadershipManager>();
+        this.gameObject.AddComponent<LevelManager>();
+        this.gameObject.AddComponent<StatsManager>();
+    }
+
+    private void InitAttributeManagers() {
+        // Random level
+        int level = this.GetInitLevel();
+        // Random Stats
+        Stats stats = this.GetInitStats();
+        //  Leadership lvl
+        int leadership = this.GetInitLeadership();
+        // Leader
+        PubSub<LeadershipManager> leader = this.GetInitLeader();
+
+        AttrManager[] mms = this.GetComponents<AttrManager>();
         foreach (AttrManager mm in mms)
         {
             mm.Init(level, stats, leadership, leader);
         }
     }
+
+    protected abstract int GetInitLevel();
+    protected abstract Stats GetInitStats();
+    protected abstract int GetInitLeadership();
+    protected abstract PubSub<LeadershipManager> GetInitLeader();
+
+    // PART OF LIFE COMPONENTS
+
+    private void AddPartsOfLife() {
+        this.gameObject.AddComponent(this.GetAttackBehaviorType());
+        this.gameObject.AddComponent(this.GetMoveBehaviorType());
+        this.gameObject.AddComponent<HealthFunction>();
+        this.gameObject.AddComponent<SightSense>();
+    }
+
+    protected abstract Type GetAttackBehaviorType();
+
+    protected abstract Type GetMoveBehaviorType();
+
+    // ADDITIONAL COMPONENTS
+
+    /**
+    This must be called after adding and initing AttributeManagers (specifically LeadershipManager),
+    so that the VisualsManager has access to the RootLeader's color
+    */
+    private void AddIndicatorManager() {
+        this.gameObject.AddComponent<VisualsManager>();
+    }
+
+    // EXECUTION
 
     public void Update()
     {
@@ -70,6 +116,8 @@ public class Brain : MonoBehaviour
 
         sw.Start();
     }
+
+    // UTILS
 
     public void ClearObservations()
     {

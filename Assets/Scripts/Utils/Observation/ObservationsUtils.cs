@@ -6,7 +6,6 @@ public static class ObservationsUtils
 {
     public static List<GameObject> SortEnemiesByDistance(GameObject me, Observations obs)
     {
-        Debug.Log(obs.nearbyEnemies);
         // 1. Sort nearby enemy GameObjects
         List<GameObject> nearbySorted = new List<GameObject>();
         foreach (List<GameObject> nearbyStrata in obs.nearbyEnemies)

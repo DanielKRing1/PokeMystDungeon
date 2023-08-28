@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class LeadershipManager : AttrManager
@@ -6,7 +7,6 @@ public class LeadershipManager : AttrManager
     internal const int MAX_LEADERSHIP = 4;
 
     public Color LeadershipColor;
-    private CircleSpriteRenderer LeaderIndicator;
 
     public LeadershipPubSub pubSub;
 
@@ -25,7 +25,6 @@ public class LeadershipManager : AttrManager
     )
     {
         this.LeadershipColor = RandomColor.GetRandColor();
-        this.LeaderIndicator = new CircleSpriteRenderer(this.gameObject);
 
         this.pubSub = new LeadershipPubSub(this, leader);
 
@@ -46,13 +45,6 @@ public class LeadershipManager : AttrManager
     public Color GetRootLeaderColor()
     {
         return this.GetRootLeader().LeadershipColor;
-    }
-
-    public void ApplyLeaderIndicatorColor()
-    {
-        Color color = this.GetRootLeaderColor();
-
-        this.LeaderIndicator.Draw(1, color);
     }
 }
 
@@ -75,11 +67,11 @@ public class LeadershipPubSub : PubSub<LeadershipManager>
     */
     public bool TryRecruitDeadSub(LeadershipPubSub newPub)
     {
-        // 0.1. If I have no Leader
+        // 0.1. I already have a Leader
         if (this.HasPub())
             return false;
 
-        // 0.2. If Luck allows it
+        // 0.2. Luck might not allow it
         if (
             UnityEngine.Random.Range(0, 1) >= newPub.Me.GetComponent<StatsManager>().GetStats().Luck
         )
@@ -105,13 +97,19 @@ public class LeadershipPubSub : PubSub<LeadershipManager>
 
     protected override bool ValidatePub(PubSub<LeadershipManager> pub)
     {
-        // New potential leader does not scale above existing leader
-        return pub.Me.Leadership >= this.GetPub().Me.Leadership;
+        HashSet<PubSub<LeadershipManager>> allPubs = new HashSet<PubSub<LeadershipManager>>();
+        this.GetAllPubs(allPubs);
+
+        // Pub is not already an upstream Pub and Pub Leadership must scale above my Leadership
+        return !allPubs.Contains(pub) && pub.Me.Leadership > this.Me.Leadership;
     }
 
     protected override bool ValidateSub(PubSub<LeadershipManager> sub)
     {
-        // New potential leader does not scale above existing leader
-        return this.Me.Leadership >= sub.Me.Leadership;
+        HashSet<PubSub<LeadershipManager>> allSubs = new HashSet<PubSub<LeadershipManager>>();
+        this.GetAllSubs(allSubs);
+
+        // Sub is not already a downstream Sub and My Leadership must scale above Sub Leadership
+        return !allSubs.Contains(sub) && this.Me.Leadership > sub.Me.Leadership;
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +10,6 @@ public static class RandUtils
 
     public static int GetRandInt(int min, int max)
     {
-        return (int)Mathf.Floor(Random.Range(min, max + 1));
+        return Random.Range(min, max);
     }
 }

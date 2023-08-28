@@ -14,7 +14,7 @@ public class MoveBehavior : Behavior
 
     private RoamHelper rh;
 
-    protected void Start()
+    public virtual void Start()
     {
         this.rh = new RoamHelper();
     }

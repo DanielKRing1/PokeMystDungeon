@@ -7,27 +7,27 @@ public abstract class PubSub<T>
 {
     public readonly T Me;
 
-    private PubSub<T> _pub;
-    public PubSub<T> Pub
+    private PubSub<T> _directPub;
+    public PubSub<T> DirectPub
     {
-        get { return _pub; }
-        private set { _pub = value; }
+        get { return _directPub; }
+        private set { _directPub = value; }
     }
 
-    protected HashSet<PubSub<T>> subs;
+    protected HashSet<PubSub<T>> DirectSubs;
 
     public PubSub(T me, PubSub<T> pub)
     {
         this.Me = me;
-        this.Pub = pub;
-        this.subs = new HashSet<PubSub<T>>();
+        this.DirectPub = pub;
+        this.DirectSubs = new HashSet<PubSub<T>>();
     }
 
     // ADD PUB/SUB
 
     protected bool _ValidatePub(PubSub<T> pub)
     {
-        return this.Pub != pub && this.ValidatePub(pub);
+        return this.DirectPub != pub && this.ValidatePub(pub);
     }
 
     protected abstract bool ValidatePub(PubSub<T> pub);
@@ -39,7 +39,7 @@ public abstract class PubSub<T>
         if (!this._ValidatePub(pub))
             return false;
 
-        this.Pub = pub;
+        this.DirectPub = pub;
         pub.AddSub(this);
 
         return true;
@@ -47,7 +47,7 @@ public abstract class PubSub<T>
 
     protected bool _ValidateSub(PubSub<T> sub)
     {
-        return !this.subs.Contains(sub) && this.ValidateSub(sub);
+        return !this.DirectSubs.Contains(sub) && this.ValidateSub(sub);
     }
 
     protected abstract bool ValidateSub(PubSub<T> sub);
@@ -59,7 +59,7 @@ public abstract class PubSub<T>
         if (!this._ValidateSub(sub))
             return false;
 
-        this.subs.Add(sub);
+        this.DirectSubs.Add(sub);
         sub.AddPub(this);
 
         return true;
@@ -71,7 +71,7 @@ public abstract class PubSub<T>
     {
         if (this.GetPub() == pub)
         {
-            this.Pub = this;
+            this.DirectPub = this;
             return true;
         }
 
@@ -80,46 +80,53 @@ public abstract class PubSub<T>
 
     public bool RmSub(PubSub<T> sub)
     {
-        if (this.subs.Contains(sub))
+        if (this.DirectSubs.Contains(sub))
         {
-            this.subs.Remove(sub);
+            this.DirectSubs.Remove(sub);
             return true;
         }
 
         return false;
     }
 
+    // GET ALL SUBS/PUBS
+
+    public void GetAllSubs(HashSet<PubSub<T>> allSubs) {
+        StartBroadcastDownstream((PubSub<T> sub) => {
+            allSubs.Add(sub);
+            return true;
+        });
+    }
+
+    public void GetAllPubs(HashSet<PubSub<T>> allPubs) {
+        StartBroadcastUpstream((PubSub<T> pub) => {
+            allPubs.Add(pub);
+            return true;
+        });
+    }
+
     // BROADCAST
 
     public void StartBroadcastDownstream(Func<PubSub<T>, bool> func)
     {
-        foreach (PubSub<T> ps in this.subs)
+        foreach (PubSub<T> ps in this.DirectSubs)
         {
-            ps.BroadcastDownstream(func);
+            bool continueBroadcast = func(ps);
+
+            if (continueBroadcast)
+                ps.StartBroadcastDownstream(func);
         }
-    }
-
-    public void BroadcastDownstream(Func<PubSub<T>, bool> func)
-    {
-        bool continueBroadcast = func(this);
-
-        if (continueBroadcast)
-            this.StartBroadcastDownstream(func);
     }
 
     public void StartBroadcastUpstream(Func<PubSub<T>, bool> func)
     {
         if (!this.HasPub())
             return;
-        this.GetPub().BroadcastUpstream(func);
-    }
 
-    public void BroadcastUpstream(Func<PubSub<T>, bool> func)
-    {
-        bool continueBroadcast = func(this);
+        bool continueBroadcast = func(this.GetPub());
 
         if (continueBroadcast)
-            this.StartBroadcastUpstream(func);
+            this.GetPub().StartBroadcastUpstream(func);
     }
 
     // UTILS
@@ -131,14 +138,14 @@ public abstract class PubSub<T>
 
     public PubSub<T> GetPub()
     {
-        if (this.Pub == null)
-            this.Pub = this;
+        if (this.DirectPub == null)
+            this.DirectPub = this;
 
-        return this.Pub;
+        return this.DirectPub;
     }
 
     /**
-    Returns the top-most Pub, ie the Pub of this Pub's Pub's ... Pub
+    Returns the top-most DirectPub, ie the DirectPub of this DirectPub's DirectPub's ... DirectPub
     */
     public PubSub<T> GetRootPub()
     {
