@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 public class LevelManager : AttrManager
 {
     private int _level;
@@ -50,7 +46,7 @@ public class LevelManager : AttrManager
 
         foreach (LevelUpSensitive lus in luss)
         {
-            lus.LevelUp();
+            lus.OnLevelUp();
         }
     }
 }

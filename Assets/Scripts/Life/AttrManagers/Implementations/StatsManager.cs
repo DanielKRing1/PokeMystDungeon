@@ -17,11 +17,11 @@ public class StatsManager : AttrManager, LevelUpSensitive
 
         for (int i = 1; i < level; i++)
         {
-            this.LevelUp();
+            this.OnLevelUp();
         }
     }
 
-    public void LevelUp()
+    public void OnLevelUp()
     {
         this.Stats.LevelUpStats();
     }
