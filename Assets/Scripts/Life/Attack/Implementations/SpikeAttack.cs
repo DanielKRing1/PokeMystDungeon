@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class SpikeAttack : AttackBehavior
 {
-    protected override void CB_DecideAfterExecute(DamageElement dmgEl)
+    protected override bool CB_DecideAfterExecute(DamageElement dmgEl)
     {
         // Do nothing
+        return true;
     }
 
     protected override string DecideDmgElResourcePath()
     {
         return "Prefabs/DmgEl";
-
     }
 
     protected override float DecideBaseCooldown()
@@ -31,7 +31,8 @@ public class SpikeAttack : AttackBehavior
             out list,
             this.transform.position,
             this.DecideHitboxRadius(),
-            this.GetComponent<LeadershipManager>().GetRootLeader());
+            this.GetComponent<LeadershipManager>().GetRootLeader()
+        );
     }
 
     protected override bool CB_DecideHandleIfReachTarget(DamageElement dmgEl, TargetInfo target)

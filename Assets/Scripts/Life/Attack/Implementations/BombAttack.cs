@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class BombAttack : AttackBehavior
 {
-    protected override void CB_DecideAfterExecute(DamageElement dmgEl)
+    protected override bool CB_DecideAfterExecute(DamageElement dmgEl)
     {
         // Do nothing
-        HandleDestroyDmgEl(dmgEl);
+        return true;
     }
 
     protected override string DecideDmgElResourcePath()

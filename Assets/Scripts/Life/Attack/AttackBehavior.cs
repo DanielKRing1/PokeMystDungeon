@@ -25,7 +25,16 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
     private float CB_GetScaledCooldown()
     {
-        return this.DecideBaseCooldown() / Mathf.Sqrt(this.GetStats().AtkSpd);
+        try
+        {
+            return this.DecideBaseCooldown() / Mathf.Sqrt(this.GetStats().AtkSpd);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+
+        return Mathf.Infinity;
     }
 
     // GET NEARBY ENEMIES
@@ -50,12 +59,32 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
     // TRACK DAMAGE ELEMENTS
 
+    protected void TrackDmgEl(DamageElement dmgEl)
+    {
+        this.trackedDamageElements.Add(dmgEl, dmgEl);
+    }
+
+    /**
+    Call to remove a DamageElement from tracked elements
+    */
+    protected void UntrackDmgEl(DamageElement dmgEl)
+    {
+        try
+        {
+            this.trackedDamageElements.Remove(dmgEl);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+    }
+
     private void ClearTrackedDamageElements()
     {
         foreach (DamageElement dmgEl in this.trackedDamageElements.Values)
         {
             dmgEl.ClearDmgCooldowns();
-            this.trackedDamageElements.Remove(dmgEl);
+            this.UntrackDmgEl(dmgEl);
         }
     }
 
@@ -100,12 +129,13 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
             this.CB_DecideOnDmg,
             this.CB_OnDefeatEnemy,
             this.CB_HandleIfExhausted,
-            this.CB_DecideAfterExecute
+            this.CB_DecideAfterExecute,
+            this.CB_BeforeDestroy
         );
 
         // 3. Potentially track DamageElement
         if (this.DecideShouldTrackDamageEl(dmgEl))
-            this.trackedDamageElements.Add(dmgEl, dmgEl);
+            this.TrackDmgEl(dmgEl);
 
         return atkGO;
     }
@@ -115,7 +145,16 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
     */
     private GameObject CB_GetDmgElGO()
     {
-        return Resources.Load(this.DecideDmgElResourcePath()) as GameObject;
+        try
+        {
+            return Resources.Load(this.DecideDmgElResourcePath()) as GameObject;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+
+        return null;
     }
 
     public override void Execute(Observations obs)
@@ -138,8 +177,15 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
     protected virtual void CB_MovementController(DamageElement dmgEl, TargetInfo ti)
     {
-        dmgEl.GetComponent<Rigidbody>().velocity =
-            this.DecideMoveSpeed() * (ti.GetTarget() - dmgEl.transform.position);
+        try
+        {
+            dmgEl.GetComponent<Rigidbody>().velocity =
+                this.DecideMoveSpeed() * (ti.GetTarget() - dmgEl.transform.position);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
     }
 
     // READY TO DMG ----
@@ -152,22 +198,47 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
     */
     private bool CB_GetShouldDmg(GameObject go)
     {
-        return true;
+        try
+        {
+            return true;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+
+        return false;
     }
 
     // GET DMG ----
 
     private float CB_GetDmg()
     {
-        return this.DecideDmgMultiplier() * this.GetStats().Attack;
+        try
+        {
+            return this.DecideDmgMultiplier() * this.GetStats().Attack;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+
+        return 0;
     }
 
     // ON DEAD ----
 
     private void CB_OnDefeatEnemy(GameObject enemy)
     {
-        this.CollectExp(enemy);
-        this.TryRecruitDeadSub(enemy);
+        try
+        {
+            this.CollectExp(enemy);
+            this.TryRecruitDeadSub(enemy);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
     }
 
     private void CollectExp(GameObject enemy) { }
@@ -187,38 +258,60 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
     private bool CB_HandleIfExhausted(int hitCount, DamageElement dmgEl)
     {
-        bool isExhausted = CheckIfExhausted(hitCount, dmgEl);
-        if (isExhausted)
-            HandleDestroyDmgEl(dmgEl);
+        try
+        {
+            return this.CheckIfExhausted(hitCount, dmgEl);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
 
-        return isExhausted;
+        return true;
     }
 
+    /**
+    Return true if Attack is exhausted, else false
+    */
     protected virtual bool CheckIfExhausted(int hitCount, DamageElement dmgEl)
     {
-        return hitCount >= this.DecideMaxHitCount();
+        try
+        {
+            return hitCount >= this.DecideMaxHitCount();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+
+        return true;
     }
 
     // DESTROY ----
 
+    private void CB_BeforeDestroy(DamageElement dmgEl)
+    {
+        try
+        {
+            this.UntrackDmgEl(dmgEl);
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e);
+        }
+    }
+
     /**
-    Call before destroying this GameObject
+    Call from DestroyManager before destroying this GameObject
+    Destroys all tracked DamageElements
     */
     public void OnDestroy()
     {
         foreach (KeyValuePair<DamageElement, DamageElement> kvp in this.trackedDamageElements)
         {
-            this.HandleDestroyDmgEl(kvp.Value);
+            // This will call CB_BeforeDestroy and then Destroy the DamageElement
+            kvp.Value.Destroy();
         }
-    }
-
-    /**
-    Call to destroy a DamageElement
-    */
-    protected void HandleDestroyDmgEl(DamageElement dmgEl)
-    {
-        this.trackedDamageElements.Remove(dmgEl);
-        Destroy(dmgEl);
     }
 
     // POSITIONING

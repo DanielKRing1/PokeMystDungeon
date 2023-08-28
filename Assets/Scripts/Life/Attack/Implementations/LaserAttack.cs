@@ -17,20 +17,23 @@ public class LaserAttack : AttackBehavior
     }
 
     /**
+    Return false so Base Class does not Destroy DamageElement, instead
     Destroy DamageElement after a delay (using Coroutine)
     */
-    protected override void CB_DecideAfterExecute(DamageElement dmgEl)
+    protected override bool CB_DecideAfterExecute(DamageElement dmgEl)
     {
         if (this.scheduledForDestroy)
-            return;
+            return false;
 
         IEnumerator ScheduleDestroy(DamageElement dmgEl)
         {
             yield return new WaitForSeconds(2.0f); // Wait for 2 seconds
-            HandleDestroyDmgEl(dmgEl);
+            dmgEl.Destroy();
         }
         StartCoroutine(ScheduleDestroy(dmgEl));
         this.scheduledForDestroy = true;
+
+        return false;
     }
 
     protected override string DecideDmgElResourcePath()

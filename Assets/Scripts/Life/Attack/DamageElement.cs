@@ -59,7 +59,8 @@ public class DamageElement : MonoBehaviour
     private Action<int, GameObject> onDmg;
     private Action<GameObject> onDead;
     private Func<int, DamageElement, bool> handleIfExhausted;
-    private Action<DamageElement> afterExecute;
+    private Func<DamageElement, bool> afterExecute;
+    private Action<DamageElement> beforeDestroy;
 
     public void Init(
         TargetInfo targetInfo,
@@ -73,7 +74,8 @@ public class DamageElement : MonoBehaviour
         Action<int, GameObject> onDmg,
         Action<GameObject> onDead,
         Func<int, DamageElement, bool> handleIfExhausted,
-        Action<DamageElement> afterExecute
+        Func<DamageElement, bool> afterExecute,
+        Action<DamageElement> beforeDestroy
     )
     {
         this.targetInfo = targetInfo;
@@ -92,6 +94,7 @@ public class DamageElement : MonoBehaviour
         this.onDead = onDead;
         this.handleIfExhausted = handleIfExhausted;
         this.afterExecute = afterExecute;
+        this.beforeDestroy = beforeDestroy;
     }
 
     public void Update()
@@ -191,7 +194,16 @@ public class DamageElement : MonoBehaviour
 
     private void ExecuteCleanup()
     {
-        this.afterExecute(this);
+        bool shouldDestroy = this.afterExecute(this);
+
+        if (shouldDestroy)
+            this.Destroy();
+    }
+
+    public void Destroy()
+    {
+        this.beforeDestroy(this);
+        Destroy(this);
     }
 
     public void ClearDmgCooldowns()

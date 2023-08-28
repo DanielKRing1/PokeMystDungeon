@@ -57,5 +57,9 @@ public abstract class AttackBehaviorDecisions : PartOfLife
 
     // AFTER EXECUTE ----
 
-    protected abstract void CB_DecideAfterExecute(DamageElement dmgEl);
+    /**
+    Do something, then
+    Return true to destroy DamageEl, else false
+    */
+    protected abstract bool CB_DecideAfterExecute(DamageElement dmgEl);
 }

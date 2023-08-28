@@ -76,7 +76,8 @@ public class OrbitAttack : AttackBehavior
         dmgEl.transform.Rotate(new Vector3(0, yRot, 0));
 
         // 2. Set position based on rotation
-        dmgEl.transform.position = this.transform.position + OrbitAttack.RADIUS * dmgEl.transform.forward;
+        dmgEl.transform.position =
+            this.transform.position + OrbitAttack.RADIUS * dmgEl.transform.forward;
     }
 
     protected override float DecideMoveSpeed()
@@ -105,7 +106,8 @@ public class OrbitAttack : AttackBehavior
             out list,
             this.transform.position,
             this.DecideHitboxRadius(),
-            this.GetComponent<LeadershipManager>().GetRootLeader());
+            this.GetComponent<LeadershipManager>().GetRootLeader()
+        );
     }
 
     protected override float DecideDmgMultiplier()
@@ -123,8 +125,9 @@ public class OrbitAttack : AttackBehavior
         return Mathf.Infinity;
     }
 
-    protected override void CB_DecideAfterExecute(DamageElement dmgEl)
+    protected override bool CB_DecideAfterExecute(DamageElement dmgEl)
     {
         // Do nothing
+        return false;
     }
 }
