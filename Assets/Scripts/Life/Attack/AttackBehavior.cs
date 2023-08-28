@@ -1,12 +1,25 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 public abstract class AttackBehavior : AttackBehaviorDecisions
 {
-    private Stopwatch cooldownSW = new Stopwatch();
+    public static readonly List<Type> ATTACK_BEHAVIOR_TYPES = new List<Type>()
+    {
+        typeof(BombAttack),
+        typeof(LaserAttack),
+        typeof(OrbitAttack),
+        typeof(SpikeAttack)
+    };
+    
+    private Stopwatch cooldownSW;
     private Dictionary<DamageElement, DamageElement> trackedDamageElements =
         new Dictionary<DamageElement, DamageElement>();
+
+    public virtual void Start() {
+        this.cooldownSW = new Stopwatch();
+    }
 
     // COOLDOWNS
 
@@ -131,41 +144,15 @@ public abstract class AttackBehavior : AttackBehaviorDecisions
 
     // READY TO DMG ----
 
-    protected bool GetEnemiesInSphereHitbox(out List<GameObject> list)
-    {
-        list = Physics
-            .OverlapSphere(this.gameObject.transform.position, this.DecideHitboxRadius())
-            .Select(col => col.gameObject)
-            .ToList();
-
-        return list.Count > 0;
-    }
-
-    protected bool GetEnemiesInSphereCastHitbox(
-        out List<GameObject> list,
-        Vector3 origin,
-        Vector3 direction,
-        float distance
-    )
-    {
-        list = Physics
-            .SphereCastAll(origin, this.DecideHitboxRadius(), direction, distance)
-            .Select(hit => hit.collider.gameObject)
-            .ToList();
-
-        return list.Count > 0;
-    }
-
     // GET SHOULD DMG ----
 
     /**
     Damage Element callback
-    returns false if GO is an ally, else true
+    Return false if should not attack for any reason, else true
     */
     private bool CB_GetShouldDmg(GameObject go)
     {
-        return this.GetComponent<LeadershipManager>().GetRootLeader()
-            != go.GetComponent<LeadershipManager>().GetRootLeader();
+        return true;
     }
 
     // GET DMG ----

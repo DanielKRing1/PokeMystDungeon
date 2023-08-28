@@ -10,8 +10,9 @@ public class LaserAttack : AttackBehavior
 
     private bool scheduledForDestroy = false;
 
-    private void Start()
+    public override void Start()
     {
+        base.Start();
         this.readySW = new Stopwatch();
     }
 
@@ -34,7 +35,8 @@ public class LaserAttack : AttackBehavior
 
     protected override string DecideDmgElResourcePath()
     {
-        throw new System.NotImplementedException();
+        return "Prefabs/DmgEl";
+
     }
 
     protected override float DecideBaseCooldown()
@@ -50,9 +52,14 @@ public class LaserAttack : AttackBehavior
     protected override bool CB_DecideEnemiesInHitbox(TargetInfo target, out List<GameObject> list)
     {
         Vector3 direction = target.GetTarget() - this.transform.position;
-        this.GetEnemiesInSphereCastHitbox(out list, this.transform.position, direction, 10f);
-
-        return list.Count > 0;
+        return HitboxUtils.GetEnemiesInSphereCastHitbox(
+            out list,
+            this.transform.position,
+            this.DecideHitboxRadius(),
+            direction,
+            // TODO Aug 26, 2023: Define this somewhere
+            10f,
+            this.GetComponent<LeadershipManager>().GetRootLeader());
     }
 
     protected override bool CB_DecideHandleIfReachTarget(DamageElement dmgEl, TargetInfo target)

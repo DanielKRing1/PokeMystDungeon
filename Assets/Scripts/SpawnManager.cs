@@ -1,18 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public static readonly List<Type> ATTACK_BEHAVIOR_TYPES = new List<Type>()
-    {
-        typeof(BombAttack),
-        typeof(LaserAttack),
-        typeof(OrbitAttack),
-        typeof(SpikeAttack)
-    };
-
     private MapManager mm;
     private int minAlive = 20;
 
@@ -60,18 +50,10 @@ public class SpawnManager : MonoBehaviour
             this.mm.CellCoordsToWorldCoords(x, y),
             this.transform.rotation
         );
-
-        // 3. Add an AttackBehavior to GameObject
-        go.AddComponent(this.GetRandAttackBehaviorType());
     }
 
     private int GetAliveCount()
     {
         return FindObjectsOfType<Brain>().Length;
-    }
-
-    private Type GetRandAttackBehaviorType()
-    {
-        return RandUtils.GetRandListElement(SpawnManager.ATTACK_BEHAVIOR_TYPES);
     }
 }

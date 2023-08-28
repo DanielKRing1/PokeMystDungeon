@@ -94,7 +94,8 @@ public class DamageElement : MonoBehaviour
         this.afterExecute = afterExecute;
     }
 
-    public void Update() {
+    public void Update()
+    {
         this.ExecuteAttack();
     }
 

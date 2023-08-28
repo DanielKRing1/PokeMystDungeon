@@ -11,7 +11,8 @@ public class SpikeAttack : AttackBehavior
 
     protected override string DecideDmgElResourcePath()
     {
-        throw new System.NotImplementedException();
+        return "Prefabs/DmgEl";
+
     }
 
     protected override float DecideBaseCooldown()
@@ -26,7 +27,11 @@ public class SpikeAttack : AttackBehavior
 
     protected override bool CB_DecideEnemiesInHitbox(TargetInfo target, out List<GameObject> list)
     {
-        return this.GetEnemiesInSphereHitbox(out list);
+        return HitboxUtils.GetEnemiesInSphereHitbox(
+            out list,
+            this.transform.position,
+            this.DecideHitboxRadius(),
+            this.GetComponent<LeadershipManager>().GetRootLeader());
     }
 
     protected override bool CB_DecideHandleIfReachTarget(DamageElement dmgEl, TargetInfo target)

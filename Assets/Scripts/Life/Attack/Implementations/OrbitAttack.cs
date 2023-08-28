@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,8 +7,9 @@ public class OrbitAttack : AttackBehavior
     private const int RADIUS = 3;
     private const float ORBIT_PERIOD = 4f;
 
-    protected void Start()
+    public override void Start()
     {
+        base.Start();
         this.InstantiateDamageElements(null);
     }
 
@@ -66,7 +66,7 @@ public class OrbitAttack : AttackBehavior
 
     protected override string DecideDmgElResourcePath()
     {
-        throw new System.NotImplementedException();
+        return "Prefabs/DmgEl";
     }
 
     protected override void CB_MovementController(DamageElement dmgEl, TargetInfo ti)
@@ -76,8 +76,7 @@ public class OrbitAttack : AttackBehavior
         dmgEl.transform.Rotate(new Vector3(0, yRot, 0));
 
         // 2. Set position based on rotation
-        dmgEl.transform.position =
-            this.transform.position + OrbitAttack.RADIUS * dmgEl.transform.forward;
+        dmgEl.transform.position = this.transform.position + OrbitAttack.RADIUS * dmgEl.transform.forward;
     }
 
     protected override float DecideMoveSpeed()
@@ -102,7 +101,11 @@ public class OrbitAttack : AttackBehavior
 
     protected override bool CB_DecideEnemiesInHitbox(TargetInfo target, out List<GameObject> list)
     {
-        return this.GetEnemiesInSphereHitbox(out list);
+        return HitboxUtils.GetEnemiesInSphereHitbox(
+            out list,
+            this.transform.position,
+            this.DecideHitboxRadius(),
+            this.GetComponent<LeadershipManager>().GetRootLeader());
     }
 
     protected override float DecideDmgMultiplier()
