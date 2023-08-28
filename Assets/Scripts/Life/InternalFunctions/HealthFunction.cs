@@ -13,19 +13,21 @@ public class HealthFunction : InternalFunction
     }
 
     private RecoveryHelper rh;
-    
-    public void Start() {
+
+    public void Start()
+    {
         this.rh = new RecoveryHelper();
     }
 
     public override void Execute(Observations obs)
     {
-
-        if(this.HandleDeath()) return;
+        if (this.HandleDeath())
+            return;
         this.HandleRecovery();
     }
 
-    private bool HandleDeath() {
+    private bool HandleDeath()
+    {
         if (this.IsDead())
         {
             this.Die();
@@ -73,9 +75,7 @@ public class HealthFunction : InternalFunction
 
     private void SpawnDmgText(int amnt)
     {
-        GameObject dmgText = Instantiate(
-            Resources.Load("Prefabs/DmgText") as GameObject
-        );
+        GameObject dmgText = Instantiate(Resources.Load("Prefabs/DmgText") as GameObject);
 
         string prefix =
             amnt > 0
@@ -106,12 +106,14 @@ public class HealthFunction : InternalFunction
         LeadershipManager lm = this.gameObject.GetComponent<LeadershipManager>();
 
         // Broadcast up and down to Rm this PubSub from immediate Leader/Followers
-        Func<PubSub<LeadershipManager>, bool> rmSub = (PubSub<LeadershipManager> pub) => {
+        Func<PubSub<LeadershipManager>, bool> rmSub = (PubSub<LeadershipManager> pub) =>
+        {
             pub.RmSub(lm.pubSub);
 
             return false;
         };
-        Func<PubSub<LeadershipManager>, bool> rmPub = (PubSub<LeadershipManager> sub) => {
+        Func<PubSub<LeadershipManager>, bool> rmPub = (PubSub<LeadershipManager> sub) =>
+        {
             sub.RmPub(lm.pubSub);
 
             return false;
@@ -120,14 +122,17 @@ public class HealthFunction : InternalFunction
         lm.pubSub.StartBroadcastUpstream(rmSub);
 
         // Broadcast all the way down
-        Func<PubSub<LeadershipManager>, bool> updateLeadershipIndicator = (PubSub<LeadershipManager> sub) => {
+        Func<PubSub<LeadershipManager>, bool> updateLeadershipIndicator = (
+            PubSub<LeadershipManager> sub
+        ) =>
+        {
             sub.Me.gameObject.GetComponent<VisualsManager>().ApplyRootLeaderColor();
 
             return true;
         };
         lm.pubSub.StartBroadcastDownstream(updateLeadershipIndicator);
 
-        Destroy(this.gameObject);
+        this.GetComponent<DestroyManager>().Destroy();
     }
 }
 
