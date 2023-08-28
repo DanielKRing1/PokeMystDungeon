@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class StatsManager : AttrManager, LevelUpSensitive
+public class StatsManager : AttrManager, ILevelUpSensitive
 {
     private Stats Stats;
 

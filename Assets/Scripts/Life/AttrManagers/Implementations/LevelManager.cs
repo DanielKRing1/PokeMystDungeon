@@ -42,9 +42,9 @@ public class LevelManager : AttrManager
 
     private void LevelUp()
     {
-        LevelUpSensitive[] luss = this.GetComponents<LevelUpSensitive>();
+        ILevelUpSensitive[] luss = this.GetComponents<ILevelUpSensitive>();
 
-        foreach (LevelUpSensitive lus in luss)
+        foreach (ILevelUpSensitive lus in luss)
         {
             lus.OnLevelUp();
         }
