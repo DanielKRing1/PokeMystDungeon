@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class MoveBehavior : Behavior
 {
-    public enum MoveIncentive {
+    public enum MoveIncentive
+    {
         WaitForLeader,
         FollowLeader,
         ChaseEnemy,
@@ -14,10 +15,15 @@ public class MoveBehavior : Behavior
 
     private RoamHelper rh;
 
-    public virtual void Start()
+    public virtual void Awake()
     {
         this.rh = new RoamHelper();
+
+        this.GetComponent<Rigidbody>().constraints =
+            RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
     }
+
+    public virtual void Start() { }
 
     public override void Execute(Observations obs)
     {
@@ -25,14 +31,16 @@ public class MoveBehavior : Behavior
         this.Rotate();
     }
 
-    protected void Move(Observations obs) {
+    protected void Move(Observations obs)
+    {
         float speed = this.GetStats().Speed;
         Vector3 dir = this.GetMoveDirection(obs);
 
         this.GetComponent<Rigidbody>().velocity = speed * dir;
     }
 
-    protected void Rotate() {
+    protected void Rotate()
+    {
         Vector3 dir = this.GetComponent<Rigidbody>().velocity.normalized;
 
         this.transform.rotation = Quaternion.Slerp(
@@ -50,11 +58,14 @@ public class MoveBehavior : Behavior
             obs
         );
 
-        switch(this.GetMoveIncentive(nearbySorted)) {
+        switch (this.GetMoveIncentive(nearbySorted))
+        {
             case MoveIncentive.WaitForLeader:
                 return Vector3.zero;
             case MoveIncentive.FollowLeader:
-                return (lm.pubSub.GetPub().Me.transform.position - this.transform.position).normalized;
+                return (
+                    lm.pubSub.GetPub().Me.transform.position - this.transform.position
+                ).normalized;
             case MoveIncentive.ChaseEnemy:
                 return (nearbySorted[0].transform.position - this.transform.position).normalized;
             case MoveIncentive.FleeEnemy:
@@ -96,7 +107,7 @@ public class MoveBehavior : Behavior
 
 public class RoamHelper
 {
-    static float ROAM_TIME = 2;
+    static readonly float ROAM_TIME = 2;
 
     private Stopwatch roamSW;
 
@@ -108,13 +119,14 @@ public class RoamHelper
     public Vector3 GetRoamDir(Vector3 velocity)
     {
         // 1. Roam timeout has not elapsed -> Keep going in same dir
-        if (!this.roamSW.HasElapsed(RoamHelper.ROAM_TIME))
+        if (!this.roamSW.HasElapsedStart(RoamHelper.ROAM_TIME))
         {
             return velocity.normalized;
         }
         // 2. Roam has timed out -> Roam in new dir within [-90, 90] degrees of original dir
         else
         {
+            Debug.Log("New Roam for: ");
             float curTheta = this.GetCurrentTheta(velocity);
             float nextTheta = this.GetNextTheta(curTheta);
 
@@ -136,7 +148,8 @@ public class RoamHelper
         return theta;
     }
 
-    public float GetNextTheta(float curTheta) {
+    public float GetNextTheta(float curTheta)
+    {
         return (curTheta + Random.Range(-90.0f, 90.0f)) % 360;
     }
 

@@ -137,7 +137,7 @@ public class LaserAttack : AttackBehavior
 
     protected override bool CB_DecideReadyToDmg(DamageElement dmgEl, TargetInfo ti)
     {
-        return this.readySW.HasElapsed(LaserAttack.CHARGE_TIME);
+        return this.readySW.HasElapsedStart(LaserAttack.CHARGE_TIME);
     }
 
     protected override bool DecideShouldTrackDamageEl(DamageElement dmgEl)

@@ -112,7 +112,7 @@ public abstract class Brain : MonoBehaviour
     private void ExecutePartsOfLife<T>(Stopwatch sw, float cooldown)
         where T : PartOfLife
     {
-        if (!sw.HasElapsed(cooldown))
+        if (!sw.HasElapsedStart(cooldown))
             return;
 
         T[] pols = this.GetComponents<T>();

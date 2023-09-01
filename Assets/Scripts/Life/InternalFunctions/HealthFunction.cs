@@ -157,10 +157,8 @@ public class RecoveryHelper
     public bool CanRecover()
     {
         // 1. Recover Health until at least 2 seconds after last hurt + Wait every second
-        if (this.LastHurtSW.HasElapsed(2) && this.LastRecoveredSW.HasElapsed(1))
+        if (this.LastHurtSW.HasElapsed(2) && this.LastRecoveredSW.HasElapsedStart(1))
         {
-            this.LastRecoveredSW.Start();
-
             return true;
         }
 
