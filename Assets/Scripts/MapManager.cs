@@ -14,19 +14,36 @@ public class MapManager : MonoBehaviour
 
     public void Start()
     {
+        this.CreatePlane();
         this.CreateMap();
+    }
+
+    private void CreatePlane()
+    {
+        GameObject worldPlanePrefab = Resources.Load("Prefabs/WorldPlane") as GameObject;
+        worldPlanePrefab.transform.localScale = new Vector3(
+            this.worldWidth / 10,
+            1,
+            this.worldHeight / 10
+        );
+        GameObject worldPlane = Instantiate(
+            worldPlanePrefab,
+            new Vector3(this.worldWidth / 2, 0, this.worldHeight / 2),
+            Quaternion.identity
+        );
+        worldPlane.name = "WorldPlane";
     }
 
     private void CreateMap()
     {
         this.map.ComputeMap(this.gridHeight, this.gridWidth);
 
-        GameObject wall = Resources.Load("Prefabs/Wall") as GameObject;
+        GameObject wallPrefab = Resources.Load("Prefabs/Wall") as GameObject;
         float wallWidth = (float)this.worldWidth / (float)this.gridWidth;
         float wallHeight = (float)this.worldHeight / (float)this.gridHeight;
-        float wallDepth = 1;
-        wall.transform.localScale = new Vector3(wallWidth, wallDepth, wallHeight);
-        GameObject plane = GameObject.Find("World");
+        float wallDepth = (wallWidth + wallHeight) / 2;
+        wallPrefab.transform.localScale = new Vector3(wallWidth, wallDepth, wallHeight);
+        GameObject plane = GameObject.Find("WorldPlane");
         Action<int, int, Map.CellType> drawCell = (int x, int y, Map.CellType ct) =>
         {
             // Cavern
@@ -37,7 +54,7 @@ public class MapManager : MonoBehaviour
             {
                 // Start at top-left
                 GameObject go = Instantiate(
-                    wall,
+                    wallPrefab,
                     this.CellCoordsToWorldCoords(x, y),
                     this.transform.rotation
                 );
