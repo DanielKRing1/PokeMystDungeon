@@ -26,7 +26,7 @@ public class MapManager : MonoBehaviour
         float wallHeight = (float)this.worldHeight / (float)this.gridHeight;
         float wallDepth = 1;
         wall.transform.localScale = new Vector3(wallWidth, wallDepth, wallHeight);
-        GameObject plane = GameObject.Find("Plane");
+        GameObject plane = GameObject.Find("World");
         Action<int, int, Map.CellType> drawCell = (int x, int y, Map.CellType ct) =>
         {
             // Cavern
@@ -114,7 +114,7 @@ public class Map
         // this.LogWallCount();
         this.EncloseMap();
         // this.LogWallCount();
-        this.ConnectCaverns();
+        // this.ConnectCaverns();
         // this.LogWallCount();
 
         this.RecordWallAndGroundCells();

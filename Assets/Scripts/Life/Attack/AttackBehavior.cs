@@ -106,6 +106,7 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
         {
             Vector3 pos = this.DecideInstantiatePosition(target);
             Quaternion rot = this.DecideInstantiateRotation(target);
+            Debug.Log(target);
             this.InstantiateDamageElement(target, pos, rot);
         }
     }
@@ -130,7 +131,7 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
             this.CB_OnDefeatEnemy,
             this.CB_HandleIfExhausted,
             this.CB_DecideAfterExecute,
-            this.CB_BeforeDestroy
+            this.CB_BeforeDestroyGameObject
         );
 
         // 3. Potentially track DamageElement
@@ -289,7 +290,7 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
     // DESTROY ----
 
-    private void CB_BeforeDestroy(DamageElement dmgEl)
+    private void CB_BeforeDestroyGameObject(DamageElement dmgEl)
     {
         try
         {
@@ -307,11 +308,26 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
     */
     public void OnDestroy()
     {
+        Debug.Log("Called");
+        List<DamageElement> elementsToDestroy = new List<DamageElement>();
+
         foreach (KeyValuePair<DamageElement, DamageElement> kvp in this.trackedDamageElements)
         {
-            // This will call CB_BeforeDestroy and then Destroy the DamageElement
-            kvp.Value.Destroy();
+            // Add elements to destroy to the separate list
+            elementsToDestroy.Add(kvp.Value);
         }
+
+        // Now, outside of the loop, you can safely destroy the GameObjects
+        foreach (DamageElement dmgEl in elementsToDestroy)
+        {
+            dmgEl.DestroyGameObject();
+        }
+
+        // foreach (KeyValuePair<DamageElement, DamageElement> kvp in this.trackedDamageElements)
+        // {
+        //     // This will call CB_BeforeDestroy and then Destroy the DamageElement
+        //     kvp.Value.Destroy();
+        // }
     }
 
     // POSITIONING

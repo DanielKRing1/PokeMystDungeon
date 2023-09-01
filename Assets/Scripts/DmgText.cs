@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -13,6 +14,11 @@ public class DmgText : MonoBehaviour
         );
 
         await Task.Delay(500);
-        Destroy(this.gameObject);
+        try
+        {
+            if (this != null)
+                Destroy(this.gameObject);
+        }
+        catch (Exception e) { }
     }
 }

@@ -31,6 +31,8 @@ public class TargetInfo
 
 public class DamageElement : MonoBehaviour
 {
+    private bool isInitted = false;
+
     // INTERNAL STATE
 
     private int hitCount = 0;
@@ -60,7 +62,7 @@ public class DamageElement : MonoBehaviour
     private Action<GameObject> onDead;
     private Func<int, DamageElement, bool> handleIfExhausted;
     private Func<DamageElement, bool> afterExecute;
-    private Action<DamageElement> beforeDestroy;
+    private Action<DamageElement> beforeDestroyGameObject;
 
     public void Init(
         TargetInfo targetInfo,
@@ -75,7 +77,7 @@ public class DamageElement : MonoBehaviour
         Action<GameObject> onDead,
         Func<int, DamageElement, bool> handleIfExhausted,
         Func<DamageElement, bool> afterExecute,
-        Action<DamageElement> beforeDestroy
+        Action<DamageElement> beforeDestroyGameObject
     )
     {
         this.targetInfo = targetInfo;
@@ -94,11 +96,17 @@ public class DamageElement : MonoBehaviour
         this.onDead = onDead;
         this.handleIfExhausted = handleIfExhausted;
         this.afterExecute = afterExecute;
-        this.beforeDestroy = beforeDestroy;
+        this.beforeDestroyGameObject = beforeDestroyGameObject;
+
+        // Init
+        this.isInitted = true;
     }
 
     public void Update()
     {
+        if (!this.isInitted)
+            return;
+
         this.ExecuteAttack();
     }
 
@@ -125,6 +133,8 @@ public class DamageElement : MonoBehaviour
     private void ExecuteMovementControls()
     {
         // 1. Move
+        Debug.Log(this);
+        Debug.Log(this.targetInfo);
         this.movementController(this, this.targetInfo);
         this.handleIfReachTarget(this, this.targetInfo);
     }
@@ -197,13 +207,16 @@ public class DamageElement : MonoBehaviour
         bool shouldDestroy = this.afterExecute(this);
 
         if (shouldDestroy)
-            this.Destroy();
+            this.DestroyGameObject();
     }
 
-    public void Destroy()
+    public void DestroyGameObject()
     {
-        this.beforeDestroy(this);
-        Destroy(this);
+        if (this == null)
+            return;
+
+        this.beforeDestroyGameObject(this);
+        Destroy(this.gameObject);
     }
 
     public void ClearDmgCooldowns()

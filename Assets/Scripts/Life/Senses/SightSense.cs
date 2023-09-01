@@ -6,12 +6,11 @@ using System.Linq;
 
 public class SightSense : Sense
 {
-
     public override void Execute(Observations obs)
     {
         // 1. Create new data containers
         List<List<GameObject>> nearbyEnemies = Enumerable
-            .Range(0, LeadershipManager.MAX_LEADERSHIP+1)
+            .Range(0, LeadershipManager.MAX_LEADERSHIP + 1)
             .Select(_ => new List<GameObject>())
             .ToList();
 
@@ -22,7 +21,8 @@ public class SightSense : Sense
         HitboxUtils.GetInSphereHitbox(
             this.gameObject.transform.position,
             this.GetStats().Vision,
-            (Collider col) => {
+            (Collider col) =>
+            {
                 // 3. Short-circuit if no Brain
                 Brain otherBrain = col.GetComponent<Brain>();
                 if (otherBrain == null)
@@ -41,7 +41,8 @@ public class SightSense : Sense
                     // 5. Add to enemy data container, depending on Leadership
                     nearbyEnemies[otherLm.Leadership].Add(col.gameObject);
                 }
-            });
+            }
+        );
 
         // 6. Update Observations object
         obs.nearbyEnemies = nearbyEnemies;

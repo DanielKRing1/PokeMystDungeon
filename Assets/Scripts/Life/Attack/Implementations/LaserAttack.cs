@@ -28,7 +28,7 @@ public class LaserAttack : AttackBehavior
         IEnumerator ScheduleDestroy(DamageElement dmgEl)
         {
             yield return new WaitForSeconds(2.0f); // Wait for 2 seconds
-            dmgEl.Destroy();
+            dmgEl.DestroyGameObject();
         }
         StartCoroutine(ScheduleDestroy(dmgEl));
         this.scheduledForDestroy = true;

@@ -7,11 +7,10 @@ public static class HitboxUtils
 {
     public static void GetInSphereHitbox(Vector3 origin, float radius, Action<Collider> cb)
     {
-        List<Collider> cols = Physics
-            .OverlapSphere(origin, radius)
-            .ToList();
+        List<Collider> cols = Physics.OverlapSphere(origin, radius).ToList();
 
-        foreach(Collider col in cols) {
+        foreach (Collider col in cols)
+        {
             cb(col);
         }
     }
@@ -21,23 +20,28 @@ public static class HitboxUtils
         Vector3 origin,
         float radius,
         LeadershipManager myRootLeader
-    ) {
+    )
+    {
         List<GameObject> temp = new List<GameObject>();
 
         GetInSphereHitbox(
             origin,
             radius,
-            (Collider col) => {
+            (Collider col) =>
+            {
                 // Add if Alive and Different RootLeader
-                if(col.gameObject.GetComponent<Brain>() != null && myRootLeader != col.gameObject.GetComponent<LeadershipManager>().GetRootLeader())
+                if (
+                    col.gameObject.GetComponent<Brain>() != null
+                    && myRootLeader
+                        != col.gameObject.GetComponent<LeadershipManager>().GetRootLeader()
+                )
                     temp.Add(col.gameObject);
                 // Else don't add
             }
         );
-        
+
         list = temp;
 
-        Debug.Log(list);
         return list.Count > 0;
     }
 
@@ -49,11 +53,10 @@ public static class HitboxUtils
         Action<Collider> cb
     )
     {
-        List<RaycastHit> hits = Physics
-            .SphereCastAll(origin, radius, direction, distance)
-            .ToList();
+        List<RaycastHit> hits = Physics.SphereCastAll(origin, radius, direction, distance).ToList();
 
-        foreach(RaycastHit hit in hits) {
+        foreach (RaycastHit hit in hits)
+        {
             cb(hit.collider);
         }
     }
@@ -65,7 +68,8 @@ public static class HitboxUtils
         Vector3 direction,
         float distance,
         LeadershipManager myRootLeader
-    ) {
+    )
+    {
         List<GameObject> temp = new List<GameObject>();
 
         GetInSphereCastHitbox(
@@ -73,9 +77,14 @@ public static class HitboxUtils
             radius,
             direction,
             distance,
-            (Collider col) => {
+            (Collider col) =>
+            {
                 // Alive and Different RootLeader
-                if(col.gameObject.GetComponent<Brain>() != null && myRootLeader != col.gameObject.GetComponent<LeadershipManager>().GetRootLeader())
+                if (
+                    col.gameObject.GetComponent<Brain>() != null
+                    && myRootLeader
+                        != col.gameObject.GetComponent<LeadershipManager>().GetRootLeader()
+                )
                     temp.Add(col.gameObject);
             }
         );

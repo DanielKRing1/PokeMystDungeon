@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class HealthFunction : InternalFunction
 {
-    private int _currentHealth;
-    public int CurrentHealth
+    private float _currentHealth;
+    public float CurrentHealth
     {
         get { return _currentHealth; }
         private set { _currentHealth = value; }
@@ -14,9 +14,11 @@ public class HealthFunction : InternalFunction
 
     private RecoveryHelper rh;
 
-    public void Start()
+    public void Awake()
     {
         this.rh = new RecoveryHelper();
+
+        this.CurrentHealth = this.GetStats().Health;
     }
 
     public override void Execute(Observations obs)

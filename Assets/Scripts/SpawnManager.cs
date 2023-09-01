@@ -15,13 +15,13 @@ public class SpawnManager : MonoBehaviour
         if (this.mm == null)
             this.mm = FindObjectOfType<MapManager>();
 
-        this.SpawnMinAlive();
+        this.MeetSpawnMin();
     }
 
     /**
     Spawns entities until the minimum number of entities are alive
     */
-    private void SpawnMinAlive()
+    private void MeetSpawnMin()
     {
         int aliveCount = this.GetAliveCount();
 

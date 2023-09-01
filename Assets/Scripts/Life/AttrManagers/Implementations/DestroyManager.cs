@@ -4,13 +4,14 @@ public class DestroyManager : MonoBehaviour
 {
     public void Destroy()
     {
-        IDestroySensitive[] dss = this.GetComponents<IDestroySensitive>();
+        // IDestroySensitive[] dss = this.GetComponents<IDestroySensitive>();
 
-        foreach (IDestroySensitive ds in dss)
-        {
-            ds.OnDestroy();
-        }
+        // foreach (IDestroySensitive ds in dss)
+        // {
+        //     ds.OnDestroy();
+        // }
 
-        Destroy(this);
+        this.gameObject.SetActive(false);
+        Destroy(this.gameObject);
     }
 }

@@ -9,7 +9,7 @@ public abstract class Brain : MonoBehaviour
 
     private Observations observations = new Observations();
 
-    protected virtual void Start()
+    protected virtual void Awake()
     {
         this.ifSW = new Stopwatch();
         this.sSW = new Stopwatch();
