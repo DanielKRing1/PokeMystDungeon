@@ -58,22 +58,29 @@ public class MoveBehavior : Behavior
             obs
         );
 
+        Vector3 dir;
         switch (this.GetMoveIncentive(nearbySorted))
         {
             case MoveIncentive.WaitForLeader:
-                return Vector3.zero;
+                dir = Vector3.zero;
+                break;
             case MoveIncentive.FollowLeader:
-                return (
-                    lm.pubSub.GetPub().Me.transform.position - this.transform.position
-                ).normalized;
+                dir = lm.pubSub.GetPub().Me.transform.position - this.transform.position;
+                break;
             case MoveIncentive.ChaseEnemy:
-                return (nearbySorted[0].transform.position - this.transform.position).normalized;
+                dir = nearbySorted[0].transform.position - this.transform.position;
+                break;
             case MoveIncentive.FleeEnemy:
-                return (this.transform.position - nearbySorted[0].transform.position).normalized;
+                dir = this.transform.position - nearbySorted[0].transform.position;
+                break;
             case MoveIncentive.Roam:
             default:
-                return this.rh.GetRoamDir(this.GetComponent<Rigidbody>().velocity).normalized;
+                Vector3 vel = this.GetComponent<Rigidbody>().velocity;
+                dir = this.rh.GetRoamDir(new Vector3(vel.x, 0, vel.z));
+                break;
         }
+
+        return new Vector3(dir.x, 0, dir.z).normalized;
     }
 
     public MoveIncentive GetMoveIncentive(List<GameObject> nearbySorted)
