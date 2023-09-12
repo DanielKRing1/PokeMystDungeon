@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections;
 
-public class CameraFacingBillboard : MonoBehaviour
+public class FaceCamera : MonoBehaviour
 {
-    public GameObject m_Camera;
+    private GameObject m_Camera;
 
     void Start()
     {
