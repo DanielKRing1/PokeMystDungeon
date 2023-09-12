@@ -36,9 +36,9 @@ public class OrbitAttack : AttackBehavior
         for (int i = 0; i < OrbitAttack.DMG_EL_COUNT; i++)
         {
             Vector3 dir = new Vector3(
-                Mathf.Sin(theta / OrbitAttack.RADIUS),
+                Mathf.Sin(theta * (Mathf.PI / 180)),
                 this.transform.position.y,
-                Mathf.Cos(theta / OrbitAttack.RADIUS)
+                Mathf.Cos(theta * (Mathf.PI / 180))
             );
             TargetInfo target = new TargetInfo(this.transform.position + OrbitAttack.RADIUS * dir);
             targets.Add(target);
