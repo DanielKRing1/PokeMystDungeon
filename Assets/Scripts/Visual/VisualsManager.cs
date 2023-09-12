@@ -8,6 +8,7 @@ public class VisualsManager : MonoBehaviour
     // Start is called before the first frame update
     public void Start()
     {
+        // Vision Outline
         GameObject visionOutlineGO = this.CreateVisualsChild(
             "VisionOutline",
             new Vector3(0, -0.45f, 0),
@@ -15,12 +16,19 @@ public class VisualsManager : MonoBehaviour
         );
         this.VisionOutline = new CircleLineRenderer(visionOutlineGO);
 
+        // Leader Indicator
         GameObject leaderIndicatorGO = this.CreateVisualsChild(
             "LeaderIndicator",
             new Vector3(0, -0.45f, 0),
             Quaternion.Euler(new Vector3(90f, 0, 0))
         );
         this.LeaderIndicator = new CircleSpriteRenderer(leaderIndicatorGO);
+
+        // HealthBar
+        GameObject healthBarPrefab = Resources.Load("Prefabs/HealthBar") as GameObject;
+        GameObject healthBarGO = Instantiate(healthBarPrefab, Vector3.zero, Quaternion.identity);
+        healthBarGO.name = "HealthBar";
+        this.SetParent(healthBarGO, new Vector3(0, 1.5f, 0), Quaternion.identity);
 
         this.ApplyRootLeaderColor();
     }
@@ -33,15 +41,20 @@ public class VisualsManager : MonoBehaviour
     {
         // 1. Create child go
         GameObject visualsChild = new GameObject(name);
-        // 2. Set parent/make child
-        visualsChild.transform.SetParent(this.gameObject.transform);
-
-        // 3. Set position
-        visualsChild.transform.localPosition = relativePosition;
-        // 4. Set rotation
-        visualsChild.transform.localRotation = relativeRotation;
+        this.SetParent(visualsChild, relativePosition, relativeRotation);
 
         return visualsChild;
+    }
+
+    private void SetParent(GameObject go, Vector3 relativePosition, Quaternion relativeRotation)
+    {
+        // 1. Set parent/make child
+        go.transform.SetParent(this.gameObject.transform);
+
+        // 2. Set position
+        go.transform.localPosition = relativePosition;
+        // 3. Set rotation
+        go.transform.localRotation = relativeRotation;
     }
 
     public void ApplyRootLeaderColor()
