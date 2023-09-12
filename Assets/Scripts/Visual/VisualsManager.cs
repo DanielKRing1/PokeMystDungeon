@@ -10,14 +10,14 @@ public class VisualsManager : MonoBehaviour
     {
         GameObject visionOutlineGO = this.CreateVisualsChild(
             "VisionOutline",
-            Vector3.zero,
+            new Vector3(0, -0.45f, 0),
             Quaternion.Euler(Vector3.zero)
         );
         this.VisionOutline = new CircleLineRenderer(visionOutlineGO);
 
         GameObject leaderIndicatorGO = this.CreateVisualsChild(
             "LeaderIndicator",
-            new Vector3(0, -0.5f, 0),
+            new Vector3(0, -0.45f, 0),
             Quaternion.Euler(new Vector3(90f, 0, 0))
         );
         this.LeaderIndicator = new CircleSpriteRenderer(leaderIndicatorGO);
@@ -51,7 +51,7 @@ public class VisualsManager : MonoBehaviour
         this.VisionOutline.Draw(
             20,
             0.25f,
-            -0.5f,
+            0f,
             this.GetComponent<StatsManager>().GetStats().Vision,
             color,
             color
