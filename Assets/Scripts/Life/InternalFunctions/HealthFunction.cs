@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class HealthFunction : InternalFunction
@@ -72,7 +70,15 @@ public class HealthFunction : InternalFunction
     {
         this.CurrentHealth = Mathf.Clamp(this.CurrentHealth + amnt, 0, (int)this.GetStats().Health);
 
+        this.UpdateHealthBar();
         this.SpawnDmgText(amnt);
+    }
+
+    private void UpdateHealthBar()
+    {
+        UnityEngine.UI.Slider healthBar = this.GetComponentInChildren<UnityEngine.UI.Slider>();
+        healthBar.value = 0.1f;
+        // healthBar.value = 1 / this.GetStats().Health;
     }
 
     private void SpawnDmgText(int amnt)
