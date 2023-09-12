@@ -334,6 +334,6 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
     protected Quaternion FaceTarget(TargetInfo target)
     {
-        return Quaternion.Euler(target.GetTarget() - this.transform.position);
+        return Quaternion.LookRotation(target.GetTarget() - this.transform.position);
     }
 }
