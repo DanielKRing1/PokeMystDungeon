@@ -160,12 +160,16 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
     public override void Execute(Observations obs)
     {
         Debug.Log(obs);
+        Debug.Log(1);
         // 0. Check cooldown
         if (!this.cooldownSW.HasElapsedStart(this.CB_GetScaledCooldown()))
             return;
+        Debug.Log(2);
 
         // 1. Get enemies to attack
         List<GameObject> toAtk = this.GetEnemiesInSight(obs);
+        Debug.Log(3);
+        Debug.Log(toAtk);
 
         // == 0 enemies
         if (toAtk.Count == 0)
@@ -173,6 +177,7 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
         // > 0 enemies
         this.InstantiateDamageElements(toAtk);
+        Debug.Log(4);
     }
 
     protected virtual void CB_MovementController(DamageElement dmgEl, TargetInfo ti)
