@@ -133,8 +133,6 @@ public class DamageElement : MonoBehaviour
     private void ExecuteMovementControls()
     {
         // 1. Move
-        Debug.Log(this);
-        Debug.Log(this.targetInfo);
         this.movementController(this, this.targetInfo);
         this.handleIfReachTarget(this, this.targetInfo);
     }

@@ -20,7 +20,8 @@ public class BasicBrain : Brain
     protected override int GetInitLevel()
     {
         // Random level
-        return (int)Random.Range(1, 10);    }
+        return (int)Random.Range(1, 10);
+    }
 
     protected override Stats GetInitStats()
     {
@@ -39,5 +40,4 @@ public class BasicBrain : Brain
     {
         return typeof(MoveBehavior);
     }
-
 }

@@ -43,7 +43,6 @@ public class SpawnManager : MonoBehaviour
         int y = spawnableCell.Item2;
 
         // 2. Spawn GameObject at cell (convert to world coords)
-        // TODO 8/21/2023: Create Enemy Prefab
         GameObject enemy = Resources.Load("Prefabs/Enemy") as GameObject;
         GameObject go = Instantiate(
             enemy,

@@ -106,7 +106,6 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
         {
             Vector3 pos = this.DecideInstantiatePosition(target);
             Quaternion rot = this.DecideInstantiateRotation(target);
-            Debug.Log(target);
             this.InstantiateDamageElement(target, pos, rot);
         }
     }
@@ -308,7 +307,6 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
     */
     public void OnDestroy()
     {
-        Debug.Log("Called");
         List<DamageElement> elementsToDestroy = new List<DamageElement>();
 
         foreach (KeyValuePair<DamageElement, DamageElement> kvp in this.trackedDamageElements)
