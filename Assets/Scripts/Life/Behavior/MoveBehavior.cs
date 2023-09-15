@@ -28,7 +28,8 @@ public class MoveBehavior : Behavior
     public override void Execute(Observations obs)
     {
         this.Move(obs);
-        this.Rotate();
+        StopCoroutine(this.Rotate());
+        StartCoroutine(this.Rotate());
     }
 
     protected void Move(Observations obs)
@@ -39,21 +40,47 @@ public class MoveBehavior : Behavior
         this.GetComponent<Rigidbody>().velocity = speed * dir;
     }
 
-    protected void Rotate()
+    protected IEnumerator Rotate()
     {
-        Vector3 dir = this.GetComponent<Rigidbody>().velocity.normalized;
+        Vector3 moveDir = this.GetComponent<Rigidbody>().velocity.normalized;
+        Quaternion targetRot = Quaternion.LookRotation(moveDir);
 
-        // this.transform.rotation = Quaternion.Slerp(
-        //     this.transform.rotation,
-        //     Quaternion.LookRotation(dir),
-        //     0.25f
-        // );
+        Quaternion origRot = transform.rotation;
+        // float step = Mathf.PI / 180 * (targetRot.eulerAngles.y - this.transform.eulerAngles.y) / 60;
 
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            Quaternion.LookRotation(dir),
-            1000 * Time.deltaTime
-        );
+        float startRot = this.transform.eulerAngles.y;
+        float endRot = Quaternion.LookRotation(moveDir).eulerAngles.y;
+        float t = 0.0f;
+        float DURATION = 0.5f;
+
+        // while (!Mathf.Approximately(this.transform.eulerAngles.y, targetRot.eulerAngles.y))
+        while (t < DURATION && Mathf.Abs(this.transform.eulerAngles.y - endRot) > 2f)
+        {
+            t += Time.deltaTime;
+
+            // float yRotation = Mathf.Lerp(startRot, endRot, t / 1f);
+            // this.transform.eulerAngles = new Vector3(
+            //     transform.eulerAngles.x,
+            //     yRotation,
+            //     transform.eulerAngles.z
+            // );
+
+            this.transform.rotation = Quaternion.Slerp(origRot, targetRot, t / DURATION);
+
+            // this.transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, t);
+
+            // transform.rotation = Quaternion.RotateTowards(origRot, targetRot, step);
+
+            // transform.rotation = Quaternion.RotateTowards(
+            //     transform.rotation,
+            //     targetRot,
+            //     1000 * Time.deltaTime
+            // );
+
+            yield return null;
+            // step += (1 / 60);
+            // yield return new WaitForSeconds(1 / 60);
+        }
     }
 
     protected virtual Vector3 GetMoveDirection(Observations obs)
@@ -65,7 +92,8 @@ public class MoveBehavior : Behavior
         );
 
         Vector3 dir;
-        switch (this.GetMoveIncentive(nearbySorted))
+        MoveIncentive mi = this.GetMoveIncentive(nearbySorted);
+        switch (mi)
         {
             case MoveIncentive.WaitForLeader:
                 dir = Vector3.zero;
