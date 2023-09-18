@@ -92,12 +92,7 @@ public class HealthFunction : InternalFunction
         Quaternion rot = Quaternion.identity;
         GameObject dmgText = Instantiate(Resources.Load("Prefabs/DmgText") as GameObject, pos, rot);
 
-        string prefix =
-            amnt > 0
-                ? "+"
-                : amnt < 0
-                    ? "-"
-                    : "";
+        string prefix = amnt > 0 ? "+" : "";
         dmgText.transform.GetChild(0).GetComponent<TextMesh>().text = prefix + amnt;
         // dmgText.GetComponent<TextMesh>().text = prefix + amnt;
     }

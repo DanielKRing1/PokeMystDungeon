@@ -121,7 +121,6 @@ public abstract class Brain : MonoBehaviour
     private void ExecutePartsOfLife<T>(Stopwatch sw, float cooldown)
         where T : PartOfLife
     {
-        Debug.Log(sw);
         if (!sw.HasElapsedStart(cooldown))
             return;
 
