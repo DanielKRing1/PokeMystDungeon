@@ -25,11 +25,15 @@ public class BombAttack : AttackBehavior
         return 2f;
     }
 
-    protected override bool CB_DecideEnemiesInHitbox(TargetInfo target, out List<GameObject> list)
+    protected override bool CB_DecideEnemiesInHitbox(
+        DamageElement dmgEl,
+        TargetInfo target,
+        out List<GameObject> list
+    )
     {
         return HitboxUtils.GetEnemiesInSphereHitbox(
             out list,
-            this.transform.position,
+            dmgEl.transform.position,
             this.DecideHitboxRadius(),
             this.GetComponent<LeadershipManager>().GetRootLeader()
         );

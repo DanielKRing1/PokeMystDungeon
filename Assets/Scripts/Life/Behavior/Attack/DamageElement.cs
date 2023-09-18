@@ -58,7 +58,11 @@ public class DamageElement : MonoBehaviour
     private Func<float> getCooldown;
 
     // Damage controls
-    public delegate bool GetEnemiesInHitboxFunc(TargetInfo target, out List<GameObject> list);
+    public delegate bool GetEnemiesInHitboxFunc(
+        DamageElement dmgEl,
+        TargetInfo target,
+        out List<GameObject> list
+    );
     private GetEnemiesInHitboxFunc getEnemiesInHitbox;
     private Func<float> getDmg;
 
@@ -128,7 +132,7 @@ public class DamageElement : MonoBehaviour
         // TODO Sept. 16, 2023: Referencing AttackBehavior callbacks from DamageElement... AttackBehaviro may have already been destroyed
         // In DestroyManager, disable GameObject until all async OnDestroy methods return
         // (Call AttackBehavior to return once DamageElements are destroyed... how to track this from AttackBehavior?)
-        if (!this.getEnemiesInHitbox(this.targetInfo, out enemiesInHitbox))
+        if (!this.getEnemiesInHitbox(this, this.targetInfo, out enemiesInHitbox))
             return;
 
         this.ExecuteDamageControls(enemiesInHitbox);

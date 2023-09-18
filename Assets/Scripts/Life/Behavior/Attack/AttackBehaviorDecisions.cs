@@ -36,7 +36,11 @@ public abstract class AttackBehaviorDecisions : Behavior
     protected abstract bool CB_DecideReadyToDmg(DamageElement dmgEl, TargetInfo ti);
 
     protected abstract float DecideHitboxRadius();
-    protected abstract bool CB_DecideEnemiesInHitbox(TargetInfo target, out List<GameObject> list);
+    protected abstract bool CB_DecideEnemiesInHitbox(
+        DamageElement dmgEl,
+        TargetInfo target,
+        out List<GameObject> list
+    );
 
     // GET DMG ----
 

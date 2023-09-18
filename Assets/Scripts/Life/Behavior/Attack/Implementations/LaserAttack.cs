@@ -51,9 +51,14 @@ public class LaserAttack : AttackBehavior
         return 1.25f;
     }
 
-    protected override bool CB_DecideEnemiesInHitbox(TargetInfo target, out List<GameObject> list)
+    protected override bool CB_DecideEnemiesInHitbox(
+        DamageElement dmgEl,
+        TargetInfo target,
+        out List<GameObject> list
+    )
     {
         Vector3 direction = target.GetTarget() - this.transform.position;
+        // TODO Sept 18, 2023: Draw Laser
         return HitboxUtils.GetEnemiesInSphereCastHitbox(
             out list,
             this.transform.position,
