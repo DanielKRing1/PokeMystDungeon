@@ -2,35 +2,59 @@ using UnityEngine;
 
 public class VisualsManager : MonoBehaviour
 {
+    private bool isInitted = false;
+
     private CircleLineRenderer VisionOutline;
     private CircleSpriteRenderer LeaderIndicator;
 
     // Start is called before the first frame update
-    public void Start()
+    public void Init()
     {
-        // Vision Outline
+        if (this.isInitted)
+            return;
+        this.isInitted = true;
+
+        // 1. Add Vision Outline
+        this.InitVisionOutline();
+
+        // 2. Add Leader Indicator
+        this.InitLeadershipIndicator();
+
+        // 3. Add Info: HealthBar + Level Info
+        this.InitInfoBar();
+
+        // 4. Apply Root Leader color
+        // CANNOT DO THIS, NEED TO INITIALIZE LEADERSHIPMANAGER FIRST
+        // BUT LEVELMANAGER NEEDS THIS INITIALIZED
+        // this.ApplyRootLeaderColor();
+    }
+
+    private void InitVisionOutline()
+    {
         GameObject visionOutlineGO = this.CreateVisualsChild(
             "VisionOutline",
             new Vector3(0, -0.45f, 0),
             Quaternion.Euler(Vector3.zero)
         );
         this.VisionOutline = new CircleLineRenderer(visionOutlineGO);
+    }
 
-        // Leader Indicator
+    private void InitLeadershipIndicator()
+    {
         GameObject leaderIndicatorGO = this.CreateVisualsChild(
             "LeaderIndicator",
             new Vector3(0, -0.45f, 0),
             Quaternion.Euler(new Vector3(90f, 0, 0))
         );
         this.LeaderIndicator = new CircleSpriteRenderer(leaderIndicatorGO);
+    }
 
-        // HealthBar
-        GameObject healthBarPrefab = Resources.Load("Prefabs/HealthBar") as GameObject;
-        GameObject healthBarGO = Instantiate(healthBarPrefab, Vector3.zero, Quaternion.identity);
-        healthBarGO.name = "HealthBar";
-        this.SetParent(healthBarGO, new Vector3(0, 1.5f, 0), Quaternion.identity);
-
-        this.ApplyRootLeaderColor();
+    private void InitInfoBar()
+    {
+        GameObject infoBarPrefab = Resources.Load("Prefabs/Info") as GameObject;
+        GameObject infoBarGO = Instantiate(infoBarPrefab, Vector3.zero, Quaternion.identity);
+        infoBarGO.name = "Info";
+        this.SetParent(infoBarGO, new Vector3(0, 1.5f, 0), Quaternion.identity);
     }
 
     private GameObject CreateVisualsChild(

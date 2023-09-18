@@ -72,18 +72,25 @@ public class HealthFunction : InternalFunction
 
         this.UpdateHealthBar();
         this.SpawnDmgText(amnt);
+
+        Debug.Log(this + " - " + this.CurrentHealth);
     }
 
     private void UpdateHealthBar()
     {
-        UnityEngine.UI.Slider healthBar = this.GetComponentInChildren<UnityEngine.UI.Slider>();
-        healthBar.value = 0.1f;
-        // healthBar.value = 1 / this.GetStats().Health;
+        this.GetComponentInChildren<InfoInterface>()
+            .UpdateHealthBar(this.CurrentHealth, this.GetStats().Health);
     }
 
     private void SpawnDmgText(int amnt)
     {
-        GameObject dmgText = Instantiate(Resources.Load("Prefabs/DmgText") as GameObject);
+        Vector3 pos = new Vector3(
+            this.transform.position.x,
+            this.transform.position.y + 1,
+            this.transform.position.z
+        );
+        Quaternion rot = Quaternion.identity;
+        GameObject dmgText = Instantiate(Resources.Load("Prefabs/DmgText") as GameObject, pos, rot);
 
         string prefix =
             amnt > 0
@@ -100,6 +107,7 @@ public class HealthFunction : InternalFunction
         // Has Health left to recover + Enough time has elapsed -> Heal
         if (this.CurrentHealth < this.GetStats().Health && this.rh.CanRecover())
         {
+            Debug.Log("Recovering");
             this.Heal((int)this.GetStats().Health / 10);
         }
     }

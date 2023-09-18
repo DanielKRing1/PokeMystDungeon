@@ -27,12 +27,14 @@ public class SpikeAttack : AttackBehavior
 
     protected override bool CB_DecideEnemiesInHitbox(TargetInfo target, out List<GameObject> list)
     {
-        return HitboxUtils.GetEnemiesInSphereHitbox(
+        bool b = HitboxUtils.GetEnemiesInSphereHitbox(
             out list,
             this.transform.position,
             this.DecideHitboxRadius(),
             this.GetComponent<LeadershipManager>().GetRootLeader()
         );
+
+        return b;
     }
 
     protected override bool CB_DecideHandleIfReachTarget(DamageElement dmgEl, TargetInfo target)
@@ -42,7 +44,9 @@ public class SpikeAttack : AttackBehavior
 
     protected override float DecideHitboxRadius()
     {
-        return 0.5f;
+        return (Resources.Load(this.DecideDmgElResourcePath()) as GameObject)
+                .GetComponent<MeshRenderer>()
+                .bounds.size.x + 0.1f;
     }
 
     protected override Vector3 DecideInstantiatePosition(TargetInfo target)

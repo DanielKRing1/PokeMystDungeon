@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class AttackBehaviorDecisions : PartOfLife
+public abstract class AttackBehaviorDecisions : Behavior
 {
     /**
     Define the interval at which this attack executes: Is it generally slow or quick?

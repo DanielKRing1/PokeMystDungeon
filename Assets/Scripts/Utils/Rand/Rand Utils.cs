@@ -12,4 +12,9 @@ public static class RandUtils
     {
         return Random.Range(min, max);
     }
+
+    public static float GetRandFloat(float min, float max)
+    {
+        return Random.Range(min, max);
+    }
 }

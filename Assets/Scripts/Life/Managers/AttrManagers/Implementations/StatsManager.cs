@@ -14,11 +14,6 @@ public class StatsManager : AttrManager, ILevelUpSensitive
     )
     {
         this.Stats = stats;
-
-        for (int i = 1; i < level; i++)
-        {
-            this.OnLevelUp();
-        }
     }
 
     public void OnLevelUp()

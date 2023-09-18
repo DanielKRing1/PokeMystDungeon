@@ -33,7 +33,8 @@ public class BasicBrain : Brain
 
     protected override System.Type GetAttackBehaviorType()
     {
-        return RandUtils.GetRandListElement(AttackBehavior.ATTACK_BEHAVIOR_TYPES);
+        return AttackBehavior.ATTACK_BEHAVIOR_TYPES[3];
+        // return RandUtils.GetRandListElement(AttackBehavior.ATTACK_BEHAVIOR_TYPES);
     }
 
     protected override System.Type GetMoveBehaviorType()

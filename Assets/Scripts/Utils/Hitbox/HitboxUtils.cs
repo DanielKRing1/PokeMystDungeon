@@ -40,6 +40,8 @@ public static class HitboxUtils
             }
         );
 
+        Debug.Log(temp.Count);
+
         list = temp;
 
         return list.Count > 0;

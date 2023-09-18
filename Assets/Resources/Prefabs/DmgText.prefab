@@ -95,7 +95,7 @@ TextMesh:
   m_Font: {fileID: 0}
   m_Color:
     serializedVersion: 2
-    rgba: 4280821823
+    rgba: 4286085346
 --- !u!95 &6095430441913619026
 Animator:
   serializedVersion: 3
@@ -125,6 +125,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9021968743987320928}
   - component: {fileID: 1975287179}
+  - component: {fileID: 7943932965351222149}
   m_Layer: 0
   m_Name: DmgText
   m_TagString: Untagged
@@ -157,5 +158,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3855733280801684fa4348897bbf081e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7943932965351222149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9021968743987320929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ecc499db0e2e01e46ac96e84fbb9406d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

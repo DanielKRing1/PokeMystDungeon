@@ -21,19 +21,34 @@ public class LevelManager : AttrManager
         PubSub<LeadershipManager> leader = null
     )
     {
-        this.Level = level;
         this.Exp = 0;
+
+        this.Level = level;
+        for (int i = 1; i <= level; i++)
+        {
+            this.LevelUp();
+        }
     }
+
+    // void Start()
+    // {
+    //     int level = this.Level;
+    //     this.Level = 0;
+
+    //     for (int i = 1; i <= level; i++)
+    //     {
+    //         this.LevelUp();
+    //     }
+    // }
 
     public void EarnExp(int exp)
     {
         // 1. Add exp
-        this.Exp += _exp;
+        this.Exp += exp;
 
         // 2. Level up
         while (this.Exp >= 100)
         {
-            this.Level++;
             this.Exp -= 100;
 
             this.LevelUp();
@@ -42,11 +57,14 @@ public class LevelManager : AttrManager
 
     private void LevelUp()
     {
-        ILevelUpSensitive[] luss = this.GetComponents<ILevelUpSensitive>();
+        this.Level++;
 
+        ILevelUpSensitive[] luss = this.GetComponents<ILevelUpSensitive>();
         foreach (ILevelUpSensitive lus in luss)
         {
             lus.OnLevelUp();
         }
+
+        this.GetComponentInChildren<InfoInterface>().UpdateLevelText(this.Level);
     }
 }

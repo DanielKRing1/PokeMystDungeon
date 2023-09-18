@@ -3,6 +3,14 @@ using UnityEngine;
 
 public abstract class Brain : MonoBehaviour
 {
+    // NOTE: It is important to init the AttributeManagers in a certain order (or at least, the LevelManager should be initted AFTER the ILevelSensitve AttributeManagers)
+    private Type[] ATTRIBUTE_MANAGERS = new Type[]
+    {
+        typeof(StatsManager),
+        typeof(LeadershipManager),
+        typeof(LevelManager)
+    };
+
     private Stopwatch ifSW;
     private Stopwatch sSW;
     private Stopwatch bSW;
@@ -20,26 +28,26 @@ public abstract class Brain : MonoBehaviour
 
     protected void Init()
     {
+        // "External" Manager (Dont know what to call them atm)
+        this.AddVisualsManager();
+        this.AddDestroyManager();
+
         // AttributeManager's
         this.AddAttributeManagers();
         this.InitAttributeManagers();
 
         // PartOfLife's
         this.AddPartsOfLife();
-
-        // Additional
-        this.AddDestroyManager();
-        this.AddIndicatorManager();
     }
 
     // ATTRIBUTE MANAGER COMPONENTS
 
     private void AddAttributeManagers()
     {
-        this.gameObject.AddComponent<StatsManager>();
-        this.gameObject.AddComponent<LeadershipManager>();
-        this.gameObject.AddComponent<LevelManager>();
-        this.gameObject.AddComponent<StatsManager>();
+        foreach (Type am in this.ATTRIBUTE_MANAGERS)
+        {
+            this.gameObject.AddComponent(am);
+        }
     }
 
     private void InitAttributeManagers()
@@ -53,10 +61,9 @@ public abstract class Brain : MonoBehaviour
         // Leader
         PubSub<LeadershipManager> leader = this.GetInitLeader();
 
-        AttrManager[] mms = this.GetComponents<AttrManager>();
-        foreach (AttrManager mm in mms)
+        foreach (Type t in this.ATTRIBUTE_MANAGERS)
         {
-            mm.Init(level, stats, leadership, leader);
+            (this.GetComponent(t) as AttrManager).Init(level, stats, leadership, leader);
         }
     }
 
@@ -83,16 +90,18 @@ public abstract class Brain : MonoBehaviour
 
     private void AddDestroyManager()
     {
-        this.gameObject.AddComponent<DestroyManager>();
+        DestroyManager dm = this.gameObject.AddComponent<DestroyManager>();
+        dm.Init();
     }
 
     /**
     This must be called after adding and initing AttributeManagers (specifically LeadershipManager),
     so that the VisualsManager has access to the RootLeader's color
     */
-    private void AddIndicatorManager()
+    private void AddVisualsManager()
     {
-        this.gameObject.AddComponent<VisualsManager>();
+        VisualsManager vm = this.gameObject.AddComponent<VisualsManager>();
+        vm.Init();
     }
 
     // EXECUTION
@@ -112,6 +121,7 @@ public abstract class Brain : MonoBehaviour
     private void ExecutePartsOfLife<T>(Stopwatch sw, float cooldown)
         where T : PartOfLife
     {
+        Debug.Log(sw);
         if (!sw.HasElapsedStart(cooldown))
             return;
 
@@ -121,8 +131,6 @@ public abstract class Brain : MonoBehaviour
         {
             pol.Execute(this.observations);
         }
-
-        sw.Start();
     }
 
     // UTILS

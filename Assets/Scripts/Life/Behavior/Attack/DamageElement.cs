@@ -25,7 +25,12 @@ public class TargetInfo
 
     public Vector3 GetTarget()
     {
-        return this.targetGO != null ? this.targetGO.transform.position : this.targetPos;
+        if (this.targetGO != null)
+            return this.targetGO.transform.position;
+        if (this.targetPos != null)
+            return this.targetPos;
+
+        throw new Exception("TargetInfo has neither GameObject nor Position");
     }
 }
 
@@ -120,6 +125,9 @@ public class DamageElement : MonoBehaviour
         // 3. Damage enemies within hitbox
         List<GameObject> enemiesInHitbox;
         // None in range
+        // TODO Sept. 16, 2023: Referencing AttackBehavior callbacks from DamageElement... AttackBehaviro may have already been destroyed
+        // In DestroyManager, disable GameObject until all async OnDestroy methods return
+        // (Call AttackBehavior to return once DamageElements are destroyed... how to track this from AttackBehavior?)
         if (!this.getEnemiesInHitbox(this.targetInfo, out enemiesInHitbox))
             return;
 
@@ -210,8 +218,11 @@ public class DamageElement : MonoBehaviour
 
     public void DestroyGameObject()
     {
+        Debug.Log("DestroyGameObject (DmgEl)");
         if (this == null)
             return;
+
+        Debug.Log("DestroyGameObject (DmgEl) innnnnnnnnn!!!!!");
 
         this.beforeDestroyGameObject(this);
         Destroy(this.gameObject);

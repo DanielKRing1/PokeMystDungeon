@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,8 +29,16 @@ public class MoveBehavior : Behavior
     public override void Execute(Observations obs)
     {
         this.Move(obs);
-        StopCoroutine(this.Rotate());
-        StartCoroutine(this.Rotate());
+
+        try
+        {
+            StopCoroutine(this.Rotate());
+            StartCoroutine(this.Rotate());
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+        }
     }
 
     protected void Move(Observations obs)
@@ -177,7 +186,7 @@ public class RoamHelper
 
     private void ResetTimer()
     {
-        this.roamDur = Random.Range(MAX_ROAM_DURATION / 2, MAX_ROAM_DURATION);
+        this.roamDur = RandUtils.GetRandFloat(MAX_ROAM_DURATION / 2, MAX_ROAM_DURATION);
         this.roamSW.Start();
     }
 
@@ -196,7 +205,7 @@ public class RoamHelper
 
     public float GetNextTheta(float curTheta)
     {
-        return (curTheta + Random.Range(-90.0f, 90.0f)) % 360;
+        return (curTheta + RandUtils.GetRandFloat(-90.0f, 90.0f)) % 360;
     }
 
     /**

@@ -4,7 +4,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     private MapManager mm;
-    private int minAlive = 20;
+    private int minAlive = 2;
 
     // Start is called before the first frame update
     void Start() { }
@@ -46,7 +46,8 @@ public class SpawnManager : MonoBehaviour
         GameObject enemy = Resources.Load("Prefabs/Enemy") as GameObject;
         GameObject go = Instantiate(
             enemy,
-            this.mm.CellCoordsToWorldCoords(x, y),
+            Vector3.zero,
+            // this.mm.CellCoordsToWorldCoords(x, y),
             this.transform.rotation
         );
     }

@@ -35,6 +35,8 @@ public class LeadershipManager : AttrManager
                     LeadershipManager.MIN_LEADERSHIP,
                     LeadershipManager.MAX_LEADERSHIP + 1
                 );
+
+        this.GetComponent<VisualsManager>().ApplyRootLeaderColor();
     }
 
     public LeadershipManager GetRootLeader()
