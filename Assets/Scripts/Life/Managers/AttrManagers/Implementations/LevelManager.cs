@@ -1,3 +1,5 @@
+using UnityEngine;
+
 public class LevelManager : AttrManager
 {
     private int _level;
@@ -47,12 +49,14 @@ public class LevelManager : AttrManager
         this.Exp += exp;
 
         // 2. Level up
-        while (this.Exp >= 100)
+        while (this.Exp >= this.CalcNeededExp())
         {
-            this.Exp -= 100;
+            this.Exp -= (int)this.CalcNeededExp();
 
             this.LevelUp();
         }
+
+        this.GetComponentInChildren<InfoInterface>().UpdateExpBar(Exp, this.CalcNeededExp());
     }
 
     private void LevelUp()
@@ -66,5 +70,21 @@ public class LevelManager : AttrManager
         }
 
         this.GetComponentInChildren<InfoInterface>().UpdateLevelText(this.Level);
+    }
+
+    /**
+    Exp needed to level up
+    */
+    public int CalcNeededExp()
+    {
+        return (int)(Mathf.Pow(this.Level, 1.2f));
+    }
+
+    /**
+    Exp earned for killing me
+    */
+    public int CalcEarnedExp()
+    {
+        return (int)(Mathf.Ceil(this.CalcNeededExp() / 5));
     }
 }
