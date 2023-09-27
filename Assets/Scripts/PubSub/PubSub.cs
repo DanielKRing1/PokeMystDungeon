@@ -1,7 +1,5 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 public abstract class PubSub<T>
 {
@@ -27,7 +25,12 @@ public abstract class PubSub<T>
 
     protected bool _ValidatePub(PubSub<T> pub)
     {
-        return this.DirectPub != pub && this.ValidatePub(pub);
+        // 1. Pub is not already an upstream Pub and
+        HashSet<PubSub<T>> allPubs = new HashSet<PubSub<T>>();
+        this.GetAllPubs(allPubs);
+
+        // 2. Further validation
+        return !allPubs.Contains(pub) && this.ValidatePub(pub);
     }
 
     protected abstract bool ValidatePub(PubSub<T> pub);
@@ -47,7 +50,11 @@ public abstract class PubSub<T>
 
     protected bool _ValidateSub(PubSub<T> sub)
     {
-        return !this.DirectSubs.Contains(sub) && this.ValidateSub(sub);
+        // 1. Sub is not already a downstream Sub and My Leadership must scale above Sub Leadership
+        HashSet<PubSub<T>> allSubs = new HashSet<PubSub<T>>();
+        this.GetAllSubs(allSubs);
+
+        return !allSubs.Contains(sub) && this.ValidateSub(sub);
     }
 
     protected abstract bool ValidateSub(PubSub<T> sub);
@@ -91,18 +98,26 @@ public abstract class PubSub<T>
 
     // GET ALL SUBS/PUBS
 
-    public void GetAllSubs(HashSet<PubSub<T>> allSubs) {
-        StartBroadcastDownstream((PubSub<T> sub) => {
-            allSubs.Add(sub);
-            return true;
-        });
+    public void GetAllSubs(HashSet<PubSub<T>> allSubs)
+    {
+        StartBroadcastDownstream(
+            (PubSub<T> sub) =>
+            {
+                allSubs.Add(sub);
+                return true;
+            }
+        );
     }
 
-    public void GetAllPubs(HashSet<PubSub<T>> allPubs) {
-        StartBroadcastUpstream((PubSub<T> pub) => {
-            allPubs.Add(pub);
-            return true;
-        });
+    public void GetAllPubs(HashSet<PubSub<T>> allPubs)
+    {
+        StartBroadcastUpstream(
+            (PubSub<T> pub) =>
+            {
+                allPubs.Add(pub);
+                return true;
+            }
+        );
     }
 
     // BROADCAST
