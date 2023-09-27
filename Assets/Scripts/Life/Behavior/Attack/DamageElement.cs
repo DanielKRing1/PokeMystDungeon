@@ -72,6 +72,7 @@ public class DamageElement : MonoBehaviour
     private Func<int, DamageElement, bool> handleIfExhausted;
     private Func<DamageElement, bool> afterExecute;
     private Action<DamageElement> beforeDestroyGameObject;
+    private GameObject parent;
 
     public void Init(
         TargetInfo targetInfo,
@@ -86,7 +87,8 @@ public class DamageElement : MonoBehaviour
         Action<GameObject> onDead,
         Func<int, DamageElement, bool> handleIfExhausted,
         Func<DamageElement, bool> afterExecute,
-        Action<DamageElement> beforeDestroyGameObject
+        Action<DamageElement> beforeDestroyGameObject,
+        GameObject parent
     )
     {
         this.targetInfo = targetInfo;
@@ -106,6 +108,8 @@ public class DamageElement : MonoBehaviour
         this.handleIfExhausted = handleIfExhausted;
         this.afterExecute = afterExecute;
         this.beforeDestroyGameObject = beforeDestroyGameObject;
+
+        this.parent = parent;
 
         // Init
         this.isInitted = true;
@@ -193,10 +197,24 @@ public class DamageElement : MonoBehaviour
             HealthFunction hf = enemy.GetComponent<HealthFunction>();
 
             // 2. Apply damage to enemy
+            LevelManager parentLevelM = this.parent.GetComponent<LevelManager>();
+            LeadershipManager parentLeaderM = this.parent.GetComponent<LeadershipManager>();
+
+            Action<int> earnExpCB = (int exp) =>
+            {
+                parentLevelM.EarnExp(exp);
+            };
+            Func<LeadershipPubSub, bool> tryRecruitDeadSubCB = (LeadershipPubSub sub) =>
+            {
+                LeadershipPubSub pub = parentLeaderM.pubSub;
+                bool recruitSuccess = sub.TryRecruitOnceDead(pub);
+                return recruitSuccess;
+            };
+
             // A damage number value would not be enough
             // The getDmg Function is important bcus it references the Caller's Stats, so
             //      it will produce 'live' damage, should the Caller's Stats change
-            bool dead = hf.Hurt((int)this.getDmg());
+            bool dead = hf.Hurt((int)this.getDmg(), earnExpCB, tryRecruitDeadSubCB);
 
             // 3. Do something after damaging enemy
             this.onDmg(this.hitCount, enemy);
@@ -222,11 +240,8 @@ public class DamageElement : MonoBehaviour
 
     public void DestroyGameObject()
     {
-        Debug.Log("DestroyGameObject (DmgEl)");
         if (this == null)
             return;
-
-        Debug.Log("DestroyGameObject (DmgEl) innnnnnnnnn!!!!!");
 
         this.beforeDestroyGameObject(this);
         Destroy(this.gameObject);

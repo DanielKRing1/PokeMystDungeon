@@ -30,7 +30,7 @@ public class HealthFunction : InternalFunction
     {
         if (this.IsDead())
         {
-            this.Die();
+            this.Die(null, null);
             return true;
         }
 
@@ -40,7 +40,11 @@ public class HealthFunction : InternalFunction
     /**
     Return true if killed, else false
     */
-    public bool Hurt(int dmg)
+    public bool Hurt(
+        int dmg,
+        Action<int> earnExpCB,
+        Func<LeadershipPubSub, bool> tryRecruitDeadSubCB
+    )
     {
         // 1. Reduce incoming damage with defense
         dmg = (int)(dmg / Mathf.Log(this.GetStats().Defense));
@@ -50,6 +54,12 @@ public class HealthFunction : InternalFunction
 
         // 3. Record 'Hurt'
         this.rh.RecordHurt();
+
+        // 4. Die
+        if (this.IsDead())
+        {
+            this.Die(earnExpCB, tryRecruitDeadSubCB);
+        }
 
         // 4. Return whether dead
         return this.IsDead();
@@ -68,12 +78,10 @@ public class HealthFunction : InternalFunction
     */
     private void AlterHealth(int amnt)
     {
-        this.CurrentHealth = Mathf.Clamp(this.CurrentHealth + amnt, 0, (int)this.GetStats().Health);
+        this.CurrentHealth = Mathf.Clamp(this.CurrentHealth + amnt, 0, this.GetStats().Health);
 
         this.UpdateHealthBar();
         this.SpawnDmgText(amnt);
-
-        Debug.Log(this + " - " + this.CurrentHealth);
     }
 
     private void UpdateHealthBar()
@@ -107,30 +115,66 @@ public class HealthFunction : InternalFunction
         }
     }
 
-    private bool IsDead()
+    public bool IsDead()
     {
         return this.CurrentHealth <= 0;
     }
 
-    private void Die()
+    private void Die(Action<int> earnExpCB, Func<LeadershipPubSub, bool> tryRecruitDeadSubCB)
     {
-        LeadershipManager lm = this.gameObject.GetComponent<LeadershipManager>();
+        // 1. Give Exp
+        try
+        {
+            earnExpCB(this.GetComponent<LevelManager>().CalcEarnedExp());
+        }
+        catch (Exception e)
+        {
+            Debug.Log("EXCEPTION------------");
+            Debug.Log(e);
+        }
+
+        // 2. Give killer a chance to Recruit
+        try
+        {
+            LeadershipManager myLeaderM = this.gameObject.GetComponent<LeadershipManager>();
+            bool recruitSuccess = tryRecruitDeadSubCB(myLeaderM.pubSub);
+
+            // 3. Do not Actually Die if successfully recruited
+            if (recruitSuccess)
+                return;
+        }
+        catch (Exception e)
+        {
+            Debug.Log("EXCEPTION------------");
+            Debug.Log(e);
+        }
+
+        // 4. Not Recruited, so Actually Die
+        // TODO Sept. 19, 2023: Move this logic to LeadershipManager
+        this.BroadcastDeath();
+
+        this.GetComponent<DestroyManager>().Destroy();
+    }
+
+    private void BroadcastDeath()
+    {
+        LeadershipManager myLeaderM = this.gameObject.GetComponent<LeadershipManager>();
 
         // Broadcast up and down to Rm this PubSub from immediate Leader/Followers
         Func<PubSub<LeadershipManager>, bool> rmSub = (PubSub<LeadershipManager> pub) =>
         {
-            pub.RmSub(lm.pubSub);
+            pub.RmSub(myLeaderM.pubSub);
 
             return false;
         };
         Func<PubSub<LeadershipManager>, bool> rmPub = (PubSub<LeadershipManager> sub) =>
         {
-            sub.RmPub(lm.pubSub);
+            sub.RmPub(myLeaderM.pubSub);
 
             return false;
         };
-        lm.pubSub.StartBroadcastDownstream(rmPub);
-        lm.pubSub.StartBroadcastUpstream(rmSub);
+        myLeaderM.pubSub.StartBroadcastDownstream(rmPub);
+        myLeaderM.pubSub.StartBroadcastUpstream(rmSub);
 
         // Broadcast all the way down
         Func<PubSub<LeadershipManager>, bool> updateLeadershipIndicator = (
@@ -141,9 +185,7 @@ public class HealthFunction : InternalFunction
 
             return true;
         };
-        lm.pubSub.StartBroadcastDownstream(updateLeadershipIndicator);
-
-        this.GetComponent<DestroyManager>().Destroy();
+        myLeaderM.pubSub.StartBroadcastDownstream(updateLeadershipIndicator);
     }
 }
 

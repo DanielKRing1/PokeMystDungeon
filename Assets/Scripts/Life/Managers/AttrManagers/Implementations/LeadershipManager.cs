@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class LeadershipManager : AttrManager
@@ -63,55 +63,97 @@ public class LeadershipPubSub : PubSub<LeadershipManager>
     // In
 
     /**
-    Recruits (sets the Leader of) this Entity and alters its Health or other attributes
+    Recruits this Sub to a potential Pub and alters this Health or other attributes
 
     Returns false if fails to recruit, else true
     */
-    public bool TryRecruitDeadSub(LeadershipPubSub newPub)
+    public bool TryRecruitOnceDead(LeadershipPubSub potentialPub)
     {
-        // 0.1. I already have a Leader
+        // 1. Not Dead
+        if (!this.Me.GetComponent<HealthFunction>().IsDead())
+            return false;
+
+        // 2. Short-circuit if failed recruit criteria (if new leader does not have higher leadership level)
+        LeadershipPubSub newPub = this.TryRecruitChallenge(potentialPub);
+        return newPub != null;
+    }
+
+    /**
+    Looks for first upstream Pub that has a high enough LeadershipLevel to recruit this as Sub,
+    Then tries to recruit
+
+    Returns LeadershipPubSub that can recruit, or null if none can
+    */
+    public LeadershipPubSub TryRecruitChallenge(LeadershipPubSub startingPub)
+    {
+        LeadershipPubSub newPub = null;
+
+        try
+        {
+            LeadershipPubSub candidatePub = startingPub;
+            bool isValidCandidate = !this.ValidatePub(candidatePub);
+            while (candidatePub.HasPub() && !isValidCandidate)
+            {
+                candidatePub = (LeadershipPubSub)candidatePub.GetPub();
+                isValidCandidate = this.ValidatePub(candidatePub);
+            }
+
+            // 1. All upstream Pubs failed requirements to be new Pub
+            if (!isValidCandidate)
+                return null;
+
+            // 2. Luck might still not allow it
+            if (RandUtils.GetRandFloat(0, 1) >= candidatePub.Me.GetStats().Luck)
+                return null;
+
+            // 3. Success, recruit
+            newPub = candidatePub;
+            this.AddPub(newPub);
+
+            // 4. Get max Health
+            float maxHealth = this.Me.GetStats().Health;
+
+            // 5. Revive to max Health
+            HealthFunction hf = this.Me.GetComponent<HealthFunction>();
+            hf.Heal((int)maxHealth);
+
+            // 6. Reset Observations
+            Brain brain = this.Me.GetComponent<Brain>();
+            brain.ClearObservations();
+
+            // 7. ApplyRootLeaderColor
+            this.Me.GetComponent<VisualsManager>().ApplyRootLeaderColor();
+
+            return candidatePub;
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e);
+        }
+
+        return newPub;
+    }
+
+    /**
+    Criteria for recruiting this Sub
+
+    Sub validates Pub
+    */
+    protected override bool ValidatePub(PubSub<LeadershipManager> pub)
+    {
+        // 1. I already have a Leader
         if (this.HasPub())
             return false;
 
-        // 0.2. Luck might not allow it
-        if (
-            UnityEngine.Random.Range(0, 1) >= newPub.Me.GetComponent<StatsManager>().GetStats().Luck
-        )
-            return false;
-
-        // 1. Short-circuit if failed to recruit (if new leader does not have higher leadership level)
-        if (!this.AddPub(newPub))
-            return false;
-
-        // 2. Get max Health
-        float maxHealth = this.Me.GetStats().Health;
-
-        // 3. Revive to max Health
-        HealthFunction hf = this.Me.GetComponent<HealthFunction>();
-        hf.Heal((int)maxHealth);
-
-        // 4. Reset Observations
-        Brain brain = this.Me.GetComponent<Brain>();
-        brain.ClearObservations();
-
-        return true;
+        // 2. Pub Leadership must scale above my Leadership
+        return pub.Me.Leadership > this.Me.Leadership;
     }
 
-    protected override bool ValidatePub(PubSub<LeadershipManager> pub)
-    {
-        HashSet<PubSub<LeadershipManager>> allPubs = new HashSet<PubSub<LeadershipManager>>();
-        this.GetAllPubs(allPubs);
-
-        // Pub is not already an upstream Pub and Pub Leadership must scale above my Leadership
-        return !allPubs.Contains(pub) && pub.Me.Leadership > this.Me.Leadership;
-    }
-
+    /**
+    Pub validates Sub
+    */
     protected override bool ValidateSub(PubSub<LeadershipManager> sub)
     {
-        HashSet<PubSub<LeadershipManager>> allSubs = new HashSet<PubSub<LeadershipManager>>();
-        this.GetAllSubs(allSubs);
-
-        // Sub is not already a downstream Sub and My Leadership must scale above Sub Leadership
-        return !allSubs.Contains(sub) && this.Me.Leadership > sub.Me.Leadership;
+        return this.Me.Leadership > sub.Me.Leadership;
     }
 }

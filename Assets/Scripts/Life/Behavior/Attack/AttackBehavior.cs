@@ -130,7 +130,8 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
             this.CB_OnDefeatEnemy,
             this.CB_HandleIfExhausted,
             this.CB_DecideAfterExecute,
-            this.CB_BeforeDestroyGameObject
+            this.CB_BeforeDestroyGameObject,
+            this.gameObject
         );
 
         // 3. Potentially track DamageElement
@@ -227,31 +228,7 @@ public abstract class AttackBehavior : AttackBehaviorDecisions, IDestroySensitiv
 
     // ON DEAD ----
 
-    private void CB_OnDefeatEnemy(GameObject enemy)
-    {
-        try
-        {
-            this.CollectExp(enemy);
-            this.TryRecruitDeadSub(enemy);
-        }
-        catch (Exception e)
-        {
-            Debug.LogError(e);
-        }
-    }
-
-    private void CollectExp(GameObject enemy) { }
-
-    /**
-    Calls LeadershipManager to try to recruit dead enemy
-    */
-    private void TryRecruitDeadSub(GameObject enemy)
-    {
-        LeadershipPubSub pub = this.GetComponent<LeadershipManager>().pubSub;
-        LeadershipPubSub sub = enemy.GetComponent<LeadershipManager>().pubSub;
-
-        sub.TryRecruitDeadSub(pub);
-    }
+    private void CB_OnDefeatEnemy(GameObject enemy) { }
 
     // HANDLE IF EXHAUSTED ----
 
