@@ -135,14 +135,14 @@ public class Stats
         // 1. Get stat multiplier 'floor'
         // Base luck determines luck ceiling, so
         // Higher base luck = higher potential lvl up luck
-        float lvlUpLuck = Random.Range(StartStats.MIN_LUCK, this.Luck);
+        float lvlUpLuck = RandUtils.GetRandFloat(StartStats.MIN_LUCK, this.Luck);
         // Higher lvlUpLuck = higher multiplier floor
         float multiplierFloor =
             StatsLvlUp.MIN_MULTIPLIER
             + (StatsLvlUp.MAX_MULTIPLIER - StatsLvlUp.MIN_MULTIPLIER) * lvlUpLuck;
 
         // 2. Get stat multiplier
-        float lvlUpMultiplier = Random.Range(multiplierFloor, StatsLvlUp.MAX_MULTIPLIER);
+        float lvlUpMultiplier = RandUtils.GetRandFloat(multiplierFloor, StatsLvlUp.MAX_MULTIPLIER);
 
         // 3. Increase stat
         float lvlUpStat = stat + stat * lvlUpMultiplier;

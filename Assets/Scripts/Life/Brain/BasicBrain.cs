@@ -20,7 +20,7 @@ public class BasicBrain : Brain
     protected override int GetInitLevel()
     {
         // Random level
-        return (int)Random.Range(1, 10);
+        return RandUtils.GetRandInt(1, 10);
     }
 
     protected override Stats GetInitStats()
