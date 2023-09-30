@@ -91,7 +91,7 @@ public class LeadershipPubSub : PubSub<LeadershipManager>
         try
         {
             LeadershipPubSub candidatePub = startingPub;
-            bool isValidCandidate = !this.ValidatePub(candidatePub);
+            bool isValidCandidate = this.ValidatePub(candidatePub);
             while (candidatePub.HasPub() && !isValidCandidate)
             {
                 candidatePub = (LeadershipPubSub)candidatePub.GetPub();
@@ -107,8 +107,10 @@ public class LeadershipPubSub : PubSub<LeadershipManager>
                 return null;
 
             // 3. Success, recruit
+            // Might fail bcus of other baked-in requirements
             newPub = candidatePub;
-            this.AddPub(newPub);
+            if (!this.AddPub(newPub))
+                return null;
 
             // 4. Get max Health
             float maxHealth = this.Me.GetStats().Health;
